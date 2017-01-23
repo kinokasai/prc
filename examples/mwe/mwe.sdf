@@ -1,0 +1,7 @@
+node right = (right: int) with
+    let right = keyboard_input 39;
+tel;
+
+node x (right: bool) = (x: int) with
+let x = if r then pre x else 0 -> pre x + 2;
+tel;
