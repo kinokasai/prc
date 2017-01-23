@@ -27,7 +27,6 @@ function create_snake() {
         snake[i] = {x: 100 - i * 12, y: 50, dx: 0, dy: 0, waypoints: []};
     }
     snake[0].dx = 2;
-    snake[0].switch_dx = 2;
     for (i = 1; i < snake.length; i++) {
         snake[i].dx = snake[i-1].dx;
         snake[i].dy = snake[i-1].dy;
@@ -66,12 +65,22 @@ function add_ring() {
     })
 }
 
+function game_over() {
+    alert("Game Over: " + snake.length);
+    document.location.reload();
+}
+
 function rand_int(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function in_range(x, min, max) {
     return x > min && x < max;
+}
+
+function aabb(a, b, size) {
+    return a.x + size >= b.x && b.x + size >= a.x &&
+        a.y + size >= b.y && b.y + size >= a.y;
 }
 
 /* Input functions */
@@ -130,8 +139,7 @@ function collide_canvas() {
     var snk = snake[0];
     if (snk.x < 0 || snk.x + 10 > canvas.width
         || snk.y < 0 || snk.y + 10 > canvas.height) {
-            alert("Game over");
-            document.location.reload();
+            game_over();
         }
 }
 
@@ -144,6 +152,14 @@ function collide_food() {
             snake.push({x: snk.x, y: snk.y, dx: 0, dy: 0, waypoints: []});
             make_food();
         }
+}
+
+function collide_snake() {
+    var snk_found = snake.find(function (snk, idx) {
+        if (idx < 3 || idx >= snake_len) { return false; }
+        return aabb(snake[0], snk, 10);
+    });
+    if (snk_found) { console.log(snk_found); console.log(snake[0]); game_over(); }
 }
 
 /* draw_functions */
@@ -222,6 +238,7 @@ function draw() {
     add_ring();
     collide_canvas();
     collide_food();
+    collide_snake();
     tick += 1;
 
     requestAnimationFrame(draw);
