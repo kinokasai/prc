@@ -1,4 +1,4 @@
-#Synchrnous Retrogames in HTML5
+#Synchronous Retrogames in HTML5
 
 Retrogames were played in arcades of the past millenia. Such games were written
 in assemby as to squeeze every bit of performance of hardware that wouldn't go
