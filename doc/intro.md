@@ -77,7 +77,7 @@ tel;
 Everything related to event programming is abstracted in the structure of the
 language.
 
-Such code would then be compiled to javascript, similarly to this:
+Such code is then compiled to the following javascript:
 
 ````javascript
 function x() = {
