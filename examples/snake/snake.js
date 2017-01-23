@@ -27,6 +27,7 @@ function create_snake() {
         snake[i] = {x: 100 - i * 12, y: 50, dx: 0, dy: 0, waypoints: []};
     }
     snake[0].dx = 2;
+    /* Make each ring follow the head */
     for (i = 1; i < snake.length; i++) {
         snake[i].dx = snake[i-1].dx;
         snake[i].dy = snake[i-1].dy;
@@ -34,8 +35,9 @@ function create_snake() {
 }
 
 function make_food() {
-    food_x = rand_int(100, canvas.width - 100);
-    food_y = rand_int(100, canvas.height - 100);
+    /* Create food in canvas */
+    food_x = rand_int(20, canvas.width - 20);
+    food_y = rand_int(20, canvas.height - 20);
 }
 
 function init() {
@@ -45,6 +47,7 @@ function init() {
 
 /* Helper functions */
 
+/* Add turn to every ring's queue */
 function broadcast(x, y, dx, dy) {
     snake.forEach(function (snk, idx, array) {
         if (idx != 0) {
@@ -54,7 +57,8 @@ function broadcast(x, y, dx, dy) {
     pix_waypoint = 0;
 }
 
-function add_ring() {
+/* Activate a new ring when it has reached the tail */
+function activate_ring() {
     pushbacks.forEach(function (item, index, array) {
         if (item.tick == tick) {
             snk = snake[item.idx];
@@ -159,7 +163,7 @@ function collide_snake() {
         if (idx < 3 || idx >= snake_len) { return false; }
         return aabb(snake[0], snk, 10);
     });
-    if (snk_found) { console.log(snk_found); console.log(snake[0]); game_over(); }
+    if (snk_found) { game_over(); }
 }
 
 /* draw_functions */
@@ -201,7 +205,7 @@ function draw_waypoint() {
 }
 
 function move_snake() {
-
+    /* Find if must turn */
     for (i = 1; i < snake.length; i++) {
         snk = snake[i];
         if (snk.waypoints.length) {
@@ -219,6 +223,7 @@ function move_snake() {
         snk.y += snk.dy;
     })
 
+    /* Add to time since last turn */
     pix_waypoint += snake[0].dx + snake[0].dy;
 }
 
@@ -235,7 +240,7 @@ function draw() {
 
     /* update stuff */
     move_snake();
-    add_ring();
+    activate_ring();
     collide_canvas();
     collide_food();
     collide_snake();
