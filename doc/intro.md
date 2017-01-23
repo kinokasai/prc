@@ -27,7 +27,20 @@ player inputs - and produce a data flow corresponding to instructions that will
 be transmitted to actors.
 
 A sharp mind may then get the intuition that a synchronous data flow language
-might be an efficient way to devise code.
+might be an efficient way to devise gameplay code.
+
+In this paper, we will focus on the application of the synchronous data flow
+formalism to retrogame programming:
+
+* We describe a first approach implementing a Snake clone in pure
+  javascript.
+* We design a synchronous data flow language integrating the HTML5 canvas API.
+* We devise a transpiler compiling from this language to javascript. The
+  compiler is written in Ocaml, and will be bootstraped throught `js_of_ocaml`.
+* We validate this second approach by implementing an other retrogame - this
+  time using this brand new language.
+
+\newpage
 
 Consider the following javascript code, which simply moves a square from the
 left to the right:
@@ -77,6 +90,8 @@ tel;
 Everything related to event programming is abstracted in the structure of the
 language.
 
+\newpage
+
 Such code is then compiled to the following javascript:
 
 ````javascript
@@ -101,15 +116,3 @@ x.prototype.step = function (right) {
     return o;
 }
 ````
-\newpage
-
-In this paper, we will focus on the application of the synchronous data flow
-formalism to retrogame programming:
-
-* We describe a first approach implementing a Snake clone in pure
-  javascript.
-* We design a synchronous data flow language integrating the HTML5 canvas API.
-* We devise a transpiler compiling from this language to javascript. The
-  compiler is written in Ocaml, and will be bootstraped throught `js_of_ocaml`.
-* We validate this second approach by implementing an other retrogame - this
-  time using this brand new language.
