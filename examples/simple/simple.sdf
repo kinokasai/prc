@@ -1,11 +1,11 @@
 #static diff: int
 
-type Dir = Left | Right | Up | Down
+type Dir = Left | Right | Up | Down | None
 
 node key_press (key: int, n: int) return (pressed : bool) =
 let
     v = (key == KD(n))
-    pressed = (if key != KU(n) then v else false) fby pressed
+    pressed = if key != KU(n) then v else false
 tel;
 
 node dir (key: int) return (d: Dir) =
@@ -18,12 +18,13 @@ let
         else if up then Up
         else if right then Right
         else if down then Down
+        else None
 tel;
 
 node move_x (dir : Dir)(x : int) return (x' : int) =
 let
     x' = match dir with
-        | Up | Down -> x
+        | Up | Down | None -> x
         | Left -> x - diff
         | Right -> x + diff
 tel;
@@ -31,7 +32,7 @@ tel;
 node move_y (dir : Dir)(y : int) return (y' : int) =
 let
     y' = match dir with
-        | Left | Right -> y
+        | Left | Right | None -> y
         | Up -> x - diff
         | Down -> y - diff
 
