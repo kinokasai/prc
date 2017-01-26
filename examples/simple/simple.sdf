@@ -1,19 +1,19 @@
 #static diff: int
 
-Dir = Left | Right | Up | Down
+type Dir = Left | Right | Up | Down
 
 node key_press (key: int, n: int) return (pressed : bool) =
 let
-    v = key == KD(n)
+    v = (key == KD(n))
     pressed = (if key != KU(n) then v else false) fby pressed
 tel;
 
 node dir (key: int) return (d: Dir) =
 let
-    left = key_press(37, key)
-    up = key_press(38, key)
-    right = key_press(39, key)
-    down = key_press(40, key)
+    left = key_press(key, 37)
+    up = key_press(key, 38)
+    right = key_press(key, 39)
+    down = key_press(key, 40)
     d = if left then Left
         else if up then Up
         else if right then Right
@@ -39,5 +39,5 @@ node move (ck : bool, key : int_on_ck)
 let
     x = 0 fby (move_x d x)
     y = 0 fby (move_y d y)
-    d = dir(key) when ck
+    dir = dir(key) when ck
 tel;
