@@ -1,5 +1,5 @@
 /* This depends on the accompanying javascript code */
-var diff = 2;
+var diff = 20;
 
 function KD(n) {
     return n;
@@ -102,6 +102,7 @@ function key_press() {
 }
 
 key_press.prototype.step = function (key, n) {
+    console.log("key :" + key)
     var v = (key == KD(n));
     var b_1 = key != KU(n);
     if (b_1) {pressed = v;} else {pressed = false;}
