@@ -1,44 +1,24 @@
-#static diff: int
+type Dir = Up | Down
 
-type Dir = Left | Right | Up | Down | None
-
-node key_press (key: int, n: int) return (pressed : bool) =
+node move_y (key: Dir, y: int) return (y': int)
 let
-    v = (key == KD(n))
-    pressed = if key != KU(n) then v else false
-tel;
+    y' = match key with
+         | Up -> y - diff
+         | Down -> y + diff
+         end
+tel
 
-node dir (key: int) return (d: Dir) =
-let
-    left = key_press(key, 37)
-    up = key_press(key, 38)
-    right = key_press(key, 39)
-    down = key_press(key, 40)
-    d = if left then Left
-        else if up then Up
-        else if right then Right
-        else if down then Down
-        else None
-tel;
+/*
+node character (x: int, y: int) return (x': int, y': int) 
+let 
+    x' >= x - 5
+    x' <= x + 10
+    y' > y + abs (x' - x)
+    y' < y + 2 * abs (x' - x)
+tel
+*/
 
-node move_x (dir : Dir)(x : int) return (x' : int) =
+node main (key : Dir) return (y : int)
 let
-    x' = match dir with
-        | Up | Down | None -> x
-        | Left -> x - diff
-        | Right -> x + diff
-tel;
-
-node move_y (dir : Dir)(y : int) return (y' : int) =
-let
-    y' = match dir with
-        | Left | Right | None -> y
-        | Up -> x - diff
-        | Down -> y - diff
-
-node move (ck : bool, key : int_on_ck)
-let
-    x = 0 fby (move_x d x)
-    y = 0 fby (move_y d y)
-    dir = dir(key) when ck
+    y = 0 fby move_y(key, y)
 tel;
