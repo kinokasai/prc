@@ -1,16 +1,18 @@
+#static diff
+
 type Dir = Up | Down
 
-node move_y (key: Dir, y: int) return (y': int)
+node move_x (key: Dir, x: int) return (x': int)
 let
-    y' = match key with
-         | Up -> y - diff
-         | Down -> y + diff
+    x' = match key with
+         | Up -> x - diff
+         | Down -> x + diff
          end
 tel
 
 /*
-node character (x: int, y: int) return (x': int, y': int) 
-let 
+node character (x: int, y: int) return (x': int, y': int)
+let
     x' >= x - 5
     x' <= x + 10
     y' > y + abs (x' - x)
@@ -18,7 +20,7 @@ let
 tel
 */
 
-node main (key : Dir) return (y : int)
+node main (key : Dir) return (x : int)
 let
-    y = 0 fby move_y(key, y)
+    x = 0 fby move_x(key, x)
 tel;
