@@ -79,7 +79,7 @@ Now compare it to the following synchronous dataflow program:
 ````
 #static diff
 
-type Dir = Up | Down
+enum Dir = { Up = 37 , Down = 39 }
 
 node move_x (key: Dir, x: int) return (x': int)
 let
@@ -108,19 +108,20 @@ var dir_enum = Object.freeze({
     RIGHT: 39,
 });
 
-function main() {
+function Main() {
+    this.move_x_node = new Move_x();
     this.x = 0;
 }
 
 main.prototype.step = function (key) {
-    var tmp_x = move_x_node.step(key, this.x)
+    var tmp_x = this.move_x_node.step(key, this.x)
     this.x = tmp_x;
     return tmp_x;
 }
 
-function move_x() {}
+function Move_x() {}
 
-move_x.prototype.step = function (dir, x) {
+Move_x.prototype.step = function (dir, x) {
     switch (dir) {
         case dir_enum.Left:
             x_1 = x - diff;
