@@ -29,14 +29,14 @@ In this internship, we aim at applying this programming model to the
 implementation of gameplay code. We will focus on the application of
 the synchronous dataflow formalism to retrogame programming:
 
-* We will first implement a Snake [4] clone in pure javascript.
+* We will first implement a Snake [4] clone in pure Javascript.
 * We will then design a synchronous dataflow language integrating the HTML5 canvas API.
 * We will devise a compiler from this language to Javascript. This
   compiler should be written in OCaml and will be bootstraped through `js_of_ocaml`.
 * We will validate this second approach by implementing an other retrogame - this
   time using this brand new language.
 
-Consider the following javascript code, which simply moves a square from 
+Consider the following Javascript code, which simply moves a square from 
 left to right:
 
 ````javascript
@@ -99,7 +99,7 @@ tel;
 Programming with events is abstracted away by the notion of stream,
 which enables a purely equational approach to programming.
 
-Such code is then compiled to the following javascript:
+Such code is then compiled to the following Javascript:
 
 ````javascript
 
