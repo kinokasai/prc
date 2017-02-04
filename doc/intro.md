@@ -1,8 +1,7 @@
 #Synchronous Retrogames in HTML5
 
 Retrogames were played in the dark arcade rooms of the past millenium. Such games were written
-in assemby as to squeeze every bit of performance of hardware that wouldn't go
-past a few Megahertz.
+in assemby so as to squeeze every bit of performance from hardware that weren't clocked at more than a few Megahertz.
 Nowadays, a mere smartphone harnesses several Megabytes of RAM and a multiple
 processor cores clocked at several Gigahertz each.
 Such power allows us to revisit game programming: ease of development takes the
@@ -10,14 +9,14 @@ lead while performance is sidelined.
 
 Web browsers are ubiquitous - and are quickly becoming the defacto platform to
 run multiplatform apps.
-Furthermore, the new web standard HTML5[1] greatly simplifies the deployment of
-dynamic application through the Javascript language. Notably, the `canvas`[2]
+Furthermore, the new web standard HTML5 [1] greatly simplifies the deployment of
+dynamic application through the Javascript language. Notably, the `canvas` [2]
 interface allows to draw objects, animate them, and intercept inputs from mouse
 or keyboards in a Web page.
 
 The canvas API imposes a reactive programming paradigm: in order to update the
-canvas, one should register a callback function through `requestAnimationFrame()`.
-[3] One has to do the same to process input.
+canvas, one should register a callback function through `requestAnimationFrame()` [3].
+ One has to do the same to process input.
 
 The reactive limitations imposed by the canvas API is similar to what is used in
 control-command systems. Several languages, based on the synchronous dataflow paradigm, have been
@@ -30,16 +29,15 @@ In this internship, we aim at applying this programming model to the
 implementation of gameplay code. We will focus on the application of
 the synchronous dataflow formalism to retrogame programming:
 
-* We describe a first approach implementing a Snake[4] clone in pure
-  javascript.
-* We design a synchronous dataflow language integrating the HTML5 canvas API.
-* We devise a compiler compiling from this language to Javascript, The
-  compiler is written in Ocaml, and will be bootstraped through `js_of_ocaml`.
-* We validate this second approach by implementing an other retrogame - this
+* We will first implement a Snake [4] clone in pure javascript.
+* We will then design a synchronous dataflow language integrating the HTML5 canvas API.
+* We will devise a compiler from this language to Javascript. This
+  compiler should be written in OCaml and will be bootstraped through `js_of_ocaml`.
+* We will validate this second approach by implementing an other retrogame - this
   time using this brand new language.
 
-Consider the following javascript code, which simply moves a square from the
-left to the right:
+Consider the following javascript code, which simply moves a square from 
+left to right:
 
 ````javascript
 var x = 0;
@@ -72,10 +70,11 @@ function draw() {
     requestAnimationFrame(draw);
 ````
 
-The callback registration is cumbersome. Furthermore, one has to use many global
-variables, which lead to confusing code.
+This code suffers from several limitations.
+First, the callback registration is cumbersome. Second, one has to use many global
+variables, which leads to confusing code.
 
-Now compare it to the much nicer *sdf* code:
+Now compare it to the following synchronous dataflow program:
 
 ````
 #static diff
@@ -97,8 +96,8 @@ tel;
 
 ````
 
-Everything related to event programming is abstracted in the structure of the
-language.
+Programming with events is abstracted away by the notion of stream,
+which enables a purely equational approach to programming.
 
 Such code is then compiled to the following javascript:
 
