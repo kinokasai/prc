@@ -92,12 +92,20 @@ tel
 node main (key : Dir) return (x : int)
 let
     x = 0 fby move_x(key, x)
+    /* `fby` creates a memory: x's value will be saved for the next call */
 tel;
 
 ````
 
 Programming with events is abstracted away by the notion of stream,
-which enables a purely equational approach to programming.
+which enables a purely equational approach to programming. Each node
+is then called on a `tick` defined for each node.
+
+Here, the main node takes a stream of Directions and produces
+a stream of positions, whose first value will be 0. On each tick
+- which is here a keypress -
+`main` will read the next value of `dir` and return a new value of x.
+
 
 Such code is then compiled to the following Javascript:
 
