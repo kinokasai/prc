@@ -103,7 +103,7 @@ is then called on a `tick` defined for each node.
 
 Here, the main node takes a stream of Directions and produces
 a stream of positions, whose first value will be 0. On each tick
-- which is here a keypress -
+\- which is here a keypress -
 `main` will read the next value of `dir` and return a new value of x.
 
 
