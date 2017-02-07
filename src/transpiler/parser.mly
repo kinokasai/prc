@@ -22,7 +22,6 @@ machine:
         MEMORY m = memory INSTANCES inst = instances
         RESET LPAREN RPAREN EQUALS e = seq_exp
         STEP se = step_dec
-    (*MEMORY m = memory INSTANCES inst = instances*)
         { { id = i; memory = m; instances = inst; reset = e; step = se;} }
 
 memory:

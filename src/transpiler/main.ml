@@ -2,6 +2,7 @@ open Batteries
 open Lexer
 open Types
 open Print
+open Js
 
 let main filename =
     (*let input = read_line stdin in*)
@@ -10,7 +11,7 @@ let main filename =
     let filebuf = Lexing.from_input input in
     try
       let ast = Parser.init Lexer.token filebuf in
-        print_string (string_of_machine ast)
+        print_string (js_of_machine ast)
         (*print_string (string_of_exp ast)*)
     with Parser.Error ->
         Printf.eprintf "At offset %d: syntax error.\n%!" (Lexing.lexeme_start filebuf)
