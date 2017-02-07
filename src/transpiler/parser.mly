@@ -2,11 +2,10 @@
   open Types
 %}
 
-%token ASSIGN
-%token SEMICOLON COLON EQUALS COMMA
+%token SEMICOLON COLON EQUALS COMMA DOT
 %token EOF
 %token LPAREN RPAREN
-%token MACHINE MEMORY RESET STATE STEP INSTANCES RETURNS
+%token MACHINE MEMORY RESET STATE STEP INSTANCES RETURNS VAR IN
 %token SKIP
 %token <string> ID
 
@@ -21,7 +20,7 @@ init:
 machine:
     | MACHINE i = ident EQUALS
         MEMORY m = memory INSTANCES inst = instances
-        RESET LPAREN RPAREN EQUALS e = exp
+        RESET LPAREN RPAREN EQUALS e = seq_exp
         STEP se = step_dec
     (*MEMORY m = memory INSTANCES inst = instances*)
         { { id = i; memory = m; instances = inst; reset = e; step = se;} }
@@ -42,13 +41,34 @@ var_decs:
     | vd = separated_list(COMMA, var_dec) { vd }
 
 step_dec:
-    | LPAREN vd = var_decs RPAREN RETURNS LPAREN rvd = var_decs RPAREN
-        { StepDec(vd, rvd, Skip) }
+    | LPAREN avd = var_decs RPAREN RETURNS LPAREN rvd = var_decs RPAREN
+        EQUALS VAR vd = var_decs IN e = seq_exp
+        { StepDec(avd, rvd, vd, e) }
+
+seq_exp:
+    | seq_exp = separated_list(SEMICOLON, exp) { seq_exp }
 
 exp:
     | SKIP { Skip }
+    | id = ID EQUALS vl = value { VarAssign(id, vl) }
+    | STATE LPAREN id = ID RPAREN EQUALS vl = value { StateAssign(id, vl) }
+    | id = ID DOT RESET { Reset(id) }
+    | LPAREN vd = separated_list(COMMA, ID) RPAREN
+        EQUALS id = ID DOT STEP LPAREN vl = val_list RPAREN { Step(vd, id, vl) }
+    | vid = ID EQUALS id = ID DOT STEP LPAREN vl = val_list RPAREN
+        { Step([vid], id,vl) }
     ;
-    (*| e1 = exp op = binop e2 = exp { Binop (op, e1, e2) }*)
+
+val_list:
+    | vl = separated_list(COMMA, value) { vl }
+
+value:
+    | st = state { st }
+    | i = INT { Immediate(i) }
+    | id = ID { Variable(id) }
+
+state:
+    | STATE LPAREN id = ID RPAREN { State(id) }
 
 %inline ident:
     | s = ID { s }
