@@ -72,6 +72,9 @@ state:
 %inline ident:
     | s = ID { s }
 
+
+(* XXX: hook up to Flow for parsing (pure) expressions?
+   [https://github.com/facebook/flow/tree/master/src/parser] *)
 (*binop:*)
   (*| PLUS { Plus }*)
   (*| MINUS { Minus }*)

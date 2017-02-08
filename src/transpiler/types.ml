@@ -23,6 +23,7 @@ type exp =
 
 type var_dec = VarDec of id * id
 type mach_dec = MachDec of id * id
+(* XXX: use a record for [step_dec] *)
 type step_dec = StepDec of var_dec list * var_dec list * var_dec list * exp list
 type machine =
     {

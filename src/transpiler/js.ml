@@ -5,6 +5,7 @@ let concat = String.concat;;
 let spaces count =
     Bytes.to_string (Bytes.make count ' ')
 
+(* XXX: use [Pprint] [http://gallium.inria.fr/blog/first-release-of-pprint/] *)
 let iendl, incendl, decendl, incindent, decindent =
     let count = ref 0 in
     (fun () -> "\n" ^ spaces !count),
