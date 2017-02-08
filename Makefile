@@ -1,5 +1,5 @@
 all:
-	(cd src/transpiler; ocamlbuild -use-menhir -use-ocamlfind -pkg batteries main.native)
+	(cd src/transpiler; ocamlbuild -use-menhir -use-ocamlfind -pkg batteries -pkg core -tag thread main.native)
 	cp -L src/transpiler/main.native sdt
 
 clean:

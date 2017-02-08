@@ -51,7 +51,7 @@ let js_of_vardecs vds =
 
 let js_of_step = function
     | StepDec(avd, rvd, vd, sexp) ->
-            let a = "step(" ^ js_of_vardecs_id avd ^ ") = {" ^ incendl() in
+            let a = "step = function(" ^ js_of_vardecs_id avd ^ ") {" ^ incendl() in
             let b = js_of_vardecs vd ^ iendl() in
             let c = js_of_seqexp sexp ^ iendl() in
             let d = "return [" ^ js_of_vardecs_id rvd ^ "];" in
@@ -65,7 +65,7 @@ let rec js_of_machine = function
             let b = js_of_memory memory ^ iendl() in
             let c = js_of_instances instances ^ decendl() in
             let d = "}" ^ iendl() ^ iendl() in
-            let e = id ^ ".prototype.reset() = {" ^ incendl() in
+            let e = id ^ ".prototype.reset = function() {" ^ incendl() in
             let f = js_of_reset reset instances in
             let g = decendl() in
             let h = "}" ^ iendl() ^ iendl() in

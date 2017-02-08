@@ -17,9 +17,9 @@ let rec string_of_machine = function
     | {id; memory; instances; reset; step} ->
             "machine " ^ id ^ iendl ()
             ^ string_of_memory memory ^ iendl ()
-            (*^ string_of_instances instances ^ decendl ()*)
-            (*^ string_of_reset reset ^ decendl ()*)
-            (*^ string_of_step_dec step*)
+            ^ string_of_instances instances ^ decendl ()
+            ^ string_of_reset reset ^ decendl ()
+            ^ string_of_step_dec step
 
 and string_of_memory mem =
     "memory " ^ (string_of_vardecs mem)
