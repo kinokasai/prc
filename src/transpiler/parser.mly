@@ -2,20 +2,34 @@
   open Types
 %}
 
-%token SEMICOLON COLON EQUALS COMMA DOT
+%token SEMICOLON COLON EQUALS COMMA DOT PIPE
 %token EOF
 %token LPAREN RPAREN
-%token MACHINE MEMORY RESET STATE STEP INSTANCES RETURNS VAR IN
+%token MACHINE MEMORY RESET STATE STEP INSTANCES RETURNS VAR IN TYPE
 %token SKIP
+%token <string> CONSTR
 %token <string> ID
 
 %token <int> INT
 
-%start <Types.machine> init
+%start <Types.ast> init
 %%
 
 init:
-    | m = machine EOF { m }
+    | tdl = type_dec_list ml = machine_list EOF { {tdl = tdl; mdl = ml;}}
+
+type_dec_list:
+    | tdl = list(td = type_dec { td }) { tdl }
+
+type_dec:
+    | TYPE id = ID EQUALS cl = separated_list(PIPE, constr) {TypeDec(id, cl)}
+
+constr:
+    | c = CONSTR { c }
+
+machine_list:
+    | ml = list(m = machine { m }) { ml }
+    ;
 
 machine:
     | MACHINE i = ident EQUALS

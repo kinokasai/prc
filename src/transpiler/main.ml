@@ -25,8 +25,8 @@ let command =
         )
     (fun print filename () ->
         match print with
-            | true -> main filename string_of_machine
-            | false -> main filename js_of_machine
+            | true -> main filename string_of_ast
+            | false -> main filename js_of_ast
     )
 
 let _ =

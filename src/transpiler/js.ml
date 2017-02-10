@@ -14,6 +14,11 @@ let iendl, incendl, decendl, incindent, decindent =
     (fun () -> count := !count + 2),
     (fun () -> count := !count -2);;
 
+let gen, reset =
+    let id = ref 0 in
+    (fun () -> incr id; string_of_int !id),
+    (fun () -> id := 0);;
+
 let id_of_machdec = function
     | MachDec(id, mid) -> id
 
@@ -58,7 +63,6 @@ let js_of_step = function
             let e = decendl () in
             a ^ b ^ c ^ d ^ e
 
-
 let rec js_of_machine = function
     | {id; memory; instances; reset; step} ->
             let a = "function " ^ id ^ "() {" ^ incendl() in
@@ -85,3 +89,24 @@ and js_of_reset rst instances =
     let b = js_of_seqexp rst ^ iendl() in
     let a = List.map code instances |> concat (iendl()) in
     b ^ a
+
+let js_of_type_dec = function
+    | TypeDec(id, cl) ->
+            let a = "var " ^ id ^ "_enum = Object.freeze({" ^ incendl() in
+            let const_val = (fun id -> id ^ ": " ^ (gen())) in
+            let b = List.map const_val cl |> concat ("," ^ iendl()) in
+            let c = decendl() in
+            let d = "});" ^ iendl() in
+            a ^ b ^ c ^ d
+
+let js_of_machine_list ml =
+    List.map js_of_machine ml |> concat (iendl())
+
+let js_of_type_dec_list tdl =
+    List.map js_of_type_dec tdl |> concat (iendl())
+
+let js_of_ast = function
+    | {tdl; mdl;} ->
+            let a = js_of_type_dec_list tdl ^ iendl() in
+            let b = js_of_machine_list mdl ^ iendl() in
+            a ^ b

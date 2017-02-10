@@ -7,7 +7,8 @@
 let digit = ['0'-'9']
 let white_ = [' ' '\t' '\n']+
 let num = digit+
-let ident = ['a'-'z' 'A'-'Z'] ['a'-'z' 'A'-'Z' '0'-'9' '_']*
+let ident = ['a'-'z'] ['a'-'z' 'A'-'Z' '0'-'9' '_']*
+let type_const = ['A'-'Z']['a'-'z' 'A'-'Z']*
 
 rule token = parse
     | white_ { token lexbuf }
@@ -17,6 +18,7 @@ rule token = parse
     | ':' { COLON }
     | ',' { COMMA }
     | '.' { DOT }
+    | '|' { PIPE }
     | "machine" { MACHINE }
     | "memory" { MEMORY }
     | "instances" { INSTANCES }
@@ -28,7 +30,9 @@ rule token = parse
     | "=" { EQUALS }
     | "var" { VAR }
     | "in" { IN }
+    | "type" { TYPE }
     | ident as id { ID id }
+    | type_const as tc { CONSTR tc }
     | num as i { INT (int_of_string i) }
     | eof { EOF }
     | _

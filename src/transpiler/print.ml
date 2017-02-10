@@ -15,7 +15,7 @@ let iendl, incendl, decendl, incindent, decindent =
 
 let rec string_of_machine = function
     | {id; memory; instances; reset; step} ->
-            "machine " ^ id ^ iendl ()
+            "machine " ^ id ^ " =" ^ iendl ()
             ^ string_of_memory memory ^ iendl ()
             ^ string_of_instances instances ^ decendl ()
             ^ string_of_reset reset ^ decendl ()
@@ -66,3 +66,21 @@ and string_of_vardec = function
 
 and string_of_machdec = function
     | MachDec(id, mid) -> id ^ " : " ^ mid
+
+and string_of_machine_list ml =
+    List.map string_of_machine ml |> concat (iendl())
+
+and string_of_type_dec_list tdl =
+    List.map string_of_type_dec tdl |> concat (iendl())
+
+and string_of_ast = function
+    | {tdl; mdl;} ->
+            let a = string_of_type_dec_list tdl ^ iendl() in
+            let b = string_of_machine_list mdl in
+            a ^ b
+
+and string_of_type_dec = function
+    | TypeDec(id, cl) ->
+            let a = "type " ^ id ^ " = " in
+            let b = cl |> concat " | " in
+            a ^ b

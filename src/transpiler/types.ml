@@ -1,6 +1,8 @@
 type opcode =
   | Plus | Minus
 
+type type_dec = TypeDec of string * string list
+
 type id = string
 
 type const =
@@ -34,4 +36,9 @@ type machine =
         step : step_dec;
     }
 
+type ast =
+    {
+        tdl : type_dec list;
+        mdl : machine list;
+    }
 let wrap s = "(" ^ s ^ ")";;
