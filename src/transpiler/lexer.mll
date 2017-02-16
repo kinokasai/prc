@@ -19,6 +19,8 @@ rule token = parse
     | ',' { COMMA }
     | '.' { DOT }
     | '|' { PIPE }
+    | '{' { LBRACE }
+    | '}' { RBRACE }
     | "machine" { MACHINE }
     | "memory" { MEMORY }
     | "instances" { INSTANCES }
@@ -31,6 +33,7 @@ rule token = parse
     | "var" { VAR }
     | "in" { IN }
     | "type" { TYPE }
+    | "case" { CASE }
     | ident as id { ID id }
     | type_const as tc { CONSTR tc }
     | num as i { INT (int_of_string i) }

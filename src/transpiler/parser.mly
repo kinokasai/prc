@@ -4,8 +4,8 @@
 
 %token SEMICOLON COLON EQUALS COMMA DOT PIPE
 %token EOF
-%token LPAREN RPAREN
-%token MACHINE MEMORY RESET STATE STEP INSTANCES RETURNS VAR IN TYPE
+%token LPAREN RPAREN LBRACE RBRACE
+%token MACHINE MEMORY RESET STATE STEP INSTANCES RETURNS VAR IN TYPE CASE
 %token SKIP
 %token <string> CONSTR
 %token <string> ID
@@ -56,7 +56,7 @@ var_decs:
 step_dec:
     | LPAREN avd = var_decs RPAREN RETURNS LPAREN rvd = var_decs RPAREN
         EQUALS VAR vd = var_decs IN e = seq_exp
-        { StepDec(avd, rvd, vd, e) }
+        {{ avd = avd; rvd = rvd; vd = vd; sexp = e; }}
 
 seq_exp:
     | seq_exp = separated_list(SEMICOLON, exp) { seq_exp }
@@ -70,25 +70,28 @@ exp:
         EQUALS id = ID DOT STEP LPAREN vl = val_list RPAREN { Step(vd, id, vl) }
     | vid = ID EQUALS id = ID DOT STEP LPAREN vl = val_list RPAREN
         { Step([vid], id,vl) }
+    | CASE LPAREN id = ID RPAREN LBRACE bl = branch_list RBRACE
+        { Case(id, bl) }
     ;
+
+branch_list:
+    | bl = separated_list(SEMICOLON, branch) { bl }
+
+branch:
+    | id = CONSTR COLON e = exp { Branch(id, e) }
 
 val_list:
     | vl = separated_list(COMMA, value) { vl }
 
 value:
     | st = state { st }
+    | id = ID LPAREN vl = val_list RPAREN { Op(id, vl) }
     | i = INT { Immediate(i) }
     | id = ID { Variable(id) }
+    | cid = CONSTR { Constr(cid) }
 
 state:
     | STATE LPAREN id = ID RPAREN { State(id) }
 
 %inline ident:
     | s = ID { s }
-
-
-(* XXX: hook up to Flow for parsing (pure) expressions?
-   [https://github.com/facebook/flow/tree/master/src/parser] *)
-(*binop:*)
-  (*| PLUS { Plus }*)
-  (*| MINUS { Minus }*)

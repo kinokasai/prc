@@ -31,11 +31,11 @@ and string_of_reset reset_exp =
     "reset () = " ^ incendl() ^ string_of_seqexp reset_exp
 
 and string_of_step_dec = function
-    | StepDec(avd, rvd, vd, exp) ->
+    | {avd; rvd; vd; sexp} ->
             "step(" ^ (string_of_vardecs avd) ^ ") returns ("
             ^ (string_of_vardecs rvd) ^ ") = " ^ iendl()
             ^ "var " ^ (string_of_vardecs vd) ^ " in " ^ iendl()
-            ^ string_of_seqexp exp ^ (incindent(); incindent(); "\n")
+            ^ string_of_seqexp sexp ^ (incindent(); incindent(); "\n")
 
 and string_of_vardecs vds =
     List.map string_of_vardec vds |> concat ", "
@@ -50,7 +50,15 @@ and string_of_exp = function
     | Reset(id) -> id ^ ".reset()"
     | Step(idl, id, vll) -> string_of_tuple idl ^ " = "
         ^ id ^ ".step(" ^ (List.map string_of_val vll |> concat ", ") ^ ")"
-    | _ -> "nop"
+    | Case(id, bl) ->
+            let a = "case (" ^ id ^ ") {" ^ incendl() in
+            let b = List.map string_of_branch bl |> concat (";" ^ iendl()) in
+            let c = decendl() in
+            let d = "}" in
+            a ^ b ^ c ^ d
+
+and string_of_branch = function
+    | Branch(id, exp) -> id ^ ": " ^ string_of_exp exp
 
 and string_of_val = function
     | Variable(id) -> id
