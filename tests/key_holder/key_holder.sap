@@ -1,0 +1,13 @@
+type key = Up | Down
+
+node main (key : key :: ck) return (b : bool)
+let
+    k = Up fby key when ck
+    b = is_down(k)
+tel;
+
+node is_down(key : key) return (b : bool)
+let
+    b = match k with
+        | Up -> False
+        | Down -> True
