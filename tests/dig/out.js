@@ -1,0 +1,116 @@
+var atm_enum = Object.freeze({
+  Wait: 1,
+  Countdown: 2,
+  Fall: 3,
+  Stop: 4
+});
+
+function update_rock() {
+  this.y = undefined;
+  this.st = undefined;
+  this.cd = new countdown();
+    this.fall = new fall();
+    this.wait = new wait();
+}
+
+update_rock.prototype.reset = function() {
+  this.cd.reset();
+  this.fall.reset();
+  this.y = 0;
+  this.st = atm_enum.Wait;
+}
+
+update_rock.prototype.step = function(collide, stop) {
+  var y = undefined;
+    var st = undefined;
+    st = this.st;
+  y = this.y;
+  switch(st) {
+    case atm_enum.Wait:
+      [st] = this.wait.step(collide);
+      break;
+    case atm_enum.Countdown:
+      [st] = this.cd.step();
+      break;
+    case atm_enum.Fall:
+      [st, y] = this.fall.step(y, stop);
+      break;
+  };
+  this.y = y;
+  this.st = st;
+  return [y];
+}
+
+function wait() {
+  this.useless = undefined;
+}
+
+wait.prototype.reset = function() {
+  
+}
+
+wait.prototype.step = function(collide) {
+  var t = undefined;
+  switch(collide) {
+    case true:
+      t = atm_enum.Countdown;
+      break;
+    case false:
+      t = atm_enum.Wait;
+      break;
+  };
+  return [t];
+}
+
+function countdown() {
+  this.count = undefined;
+}
+
+countdown.prototype.reset = function() {
+  this.count = 300;
+}
+
+countdown.prototype.step = function() {
+    var x = undefined;
+    var t = undefined;
+  x = minus(this.count, 1);
+    b = less_than(x, 0);
+    switch(b) {
+        case true:
+            t = atm_enum.Fall;
+            break;
+        case false:
+            t = atm_enum.Countdown;
+            break;
+    }
+    this.count = x;
+  return [t];
+}
+
+function fall() {
+  this.imuseless = undefined;
+}
+
+fall.prototype.reset = function() {
+  
+}
+
+fall.prototype.step = function(y_in, stop) {
+  var y = undefined;
+    var diff = undefined;
+    var t = undefined;
+  switch(stop) {
+    case true:
+        diff = 0;
+        t = atm_enum.Stop;
+      break;
+    case false:
+        diff = 4;
+          t = atm_enum.Fall;
+      break;
+  };
+    y = plus(y_in, diff);
+    console.log(y);
+  return [t, y];
+}
+
