@@ -1,5 +1,5 @@
 all: runtime
-	(cd src/transpiler; ocamlbuild -use-menhir -use-ocamlfind -pkg batteries -pkg core -tag thread -tag debug main.byte)
+	(cd src/transpiler; ocamlbuild -use-menhir -use-ocamlfind -pkg batteries -pkg core -tag thread -tag debug -tag explain  main.byte)
 	cp -L src/transpiler/main.byte sdt
 
 runtime:

@@ -1,6 +1,10 @@
 open Types
 open Printf
 open Helpers
+
+module Smap = Map.Make(String);;
+let tmap = ref Smap.empty;;
+
 let concat = String.concat;;
 
 let spaces count =
@@ -22,6 +26,11 @@ let gen, reset =
     (fun () -> incr id; string_of_int !id),
     (fun () -> id := 0);;
 
+let js_of_constr ty_id c_id = match c_id with
+    | "True" -> "true"
+    | "False" -> "false"
+    | _ -> ty_id ^ "_enum." ^ c_id
+
 let id_of_machdec = function
     | MachDec(id, mid) -> id
 
@@ -35,7 +44,7 @@ let rec js_of_val = function
     | Variable(id) -> id
     | State(id) -> "this." ^ id
     | Immediate(i) -> string_of_int i
-    | Constr(id) -> id
+    | Constr(id) -> Smap.find id !tmap
     | Op(id, vll) -> id ^ wrap (List.map js_of_val vll |> concat ", ")
 
 let rec js_of_exp = function
@@ -56,13 +65,14 @@ let rec js_of_exp = function
 
 and js_of_branch = function
     | Branch(id, exp) ->
-            let a = "case " ^ id ^ ":" ^ incendl() in
-            let b = js_of_exp exp ^ ";" ^ iendl() in
+            let full_id = Smap.find id !tmap in
+            let a = "case " ^ full_id ^ ":" ^ incendl() in
+            let b = js_of_seqexp exp ^ iendl() in
             let c = "break;" in
             let d = decindent() in
             a ^ b ^ c ^ d
 
-let js_of_seqexp sexp =
+and js_of_seqexp sexp =
     let a = (List.map js_of_exp sexp |> concat (";" ^ iendl())) in
     let b = if empty a then "" else ";" in
     a ^ b
@@ -118,7 +128,9 @@ and js_of_reset rst instances =
 let js_of_type_dec = function
     | TypeDec(id, cl) ->
             let a = "var " ^ id ^ "_enum = Object.freeze({" ^ incendl() in
-            let const_val = (fun id -> id ^ ": " ^ (gen())) in
+            let const_val =
+                (fun cid -> tmap := Smap.add cid (js_of_constr id cid) !tmap;
+                                cid ^ ": " ^ (gen())) in
             let b = List.map const_val cl |> concat ("," ^ iendl()) in
             let c = decendl() in
             let d = "});" ^ iendl() in

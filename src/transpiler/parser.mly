@@ -75,10 +75,10 @@ exp:
     ;
 
 branch_list:
-    | bl = separated_list(SEMICOLON, branch) { bl }
+    | bl = separated_list(PIPE, branch) { bl }
 
 branch:
-    | id = CONSTR COLON e = exp { Branch(id, e) }
+    | id = CONSTR COLON e = seq_exp { Branch(id, e) }
 
 val_list:
     | vl = separated_list(COMMA, value) { vl }

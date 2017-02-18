@@ -14,7 +14,7 @@ type value =
     | Immediate of int
     | Op of id * value list
 
-type branch = Branch of id * exp
+type branch = Branch of id * exp list
 
 and exp =
   | VarAssign of id * value (* x = 3 *)

@@ -3,6 +3,7 @@ open Batteries
 open Lexer
 open Types
 open Print
+open Printexc
 open Js
 
 let main filename callback =
@@ -16,6 +17,7 @@ let main filename callback =
         Printf.eprintf "At offset %d: syntax error.\n%!" (Lexing.lexeme_start filebuf)
     | SyntaxError(str) ->
         print_string str
+    | e -> print_string(to_string(e) ^ get_backtrace())
 
 let command =
     Command.basic

@@ -58,7 +58,7 @@ and string_of_exp = function
             a ^ b ^ c ^ d
 
 and string_of_branch = function
-    | Branch(id, exp) -> id ^ ": " ^ string_of_exp exp
+    | Branch(id, exp) -> id ^ ": " ^ string_of_seqexp exp
 
 and string_of_val = function
     | Variable(id) -> id

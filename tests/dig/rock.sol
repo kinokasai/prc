@@ -1,3 +1,4 @@
+type bool = True | False
 type atm = Wait | Countdown | Fall | Stop
 
 machine update_rock =
@@ -11,8 +12,8 @@ machine update_rock =
       y = state(y);
       st = state(st);
     case (st) {
-        Wait: st = wait.step(collide);
-        Countdown: st = cd.step();
+        Wait: st = wait.step(collide) |
+        Countdown: st = cd.step() |
         Fall: (st, y) = fall.step(y, stop)
     };
     state(y) = y;
@@ -25,7 +26,7 @@ machine wait =
     step(collide : bool) returns (t : atm) =
         var t : atm in
         case (collide) {
-            True : t = Countdown;
+            True : t = Countdown |
             False : t = Wait
     }
 
@@ -39,7 +40,7 @@ machine countdown =
         x = minus(state(count), 1);
         b = less_than(x, 0);
         case (b) {
-            True : t = Fall;
+            True : t = Fall |
             False : t = Countdown
         };
         state(count) = x
@@ -49,7 +50,9 @@ machine fall =
     instances
     reset () = skip
     step(y_in : int, stop : bool) returns (t : atm, y : int) =
-      var y : int, diff : int in
-      case (stop) { True: diff = 0;
+      var y : int, diff : int, t : atm in
+      case (stop) { True: diff = 0 |
                     False: diff = 4};
-      y = plus(y_in, diff)
+      y = plus(y_in, diff);
+      case (stop) { True: t = Stop |
+                    False: t = Fall}
