@@ -1,5 +1,10 @@
 language: c
 script: bash -ex .travis-ci.sh
 sudo: required
+notifications:
+  email:
+    recipients:
+      - doussot.alexandre@gmail.com
+    on_success: never
 env:
   - OCAML_VERSION=4.04.0 OPAM_VERSION=1.2.2

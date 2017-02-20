@@ -14,7 +14,9 @@ let main filename callback =
         print_string (callback ast)
     with
     | Parser.Error ->
-        Printf.eprintf "At offset %d: syntax error.\n%!" (Lexing.lexeme_start filebuf)
+        (Printf.eprintf "At offset %d: syntax error.\n%!" (Lexing.lexeme_start
+        filebuf);
+        exit 2)
     | SyntaxError(str) ->
         print_string str
     | e -> print_string(to_string(e) ^ get_backtrace())

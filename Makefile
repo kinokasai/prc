@@ -5,6 +5,12 @@ all: runtime
 runtime:
 	cat src/runtime/op.js src/runtime/runtime.js > runtime.js
 
+game: runtime
+	mkdir -p ${name}
+	mv runtime.js ${name}
+	cp src/runtime/engine.js ${name}
+	cp src/runtime/game.html ${name}/${name}.html
+
 run:
 	mkdir -p out
 	./sdt tests/dig2.sol > out/out.js
@@ -15,4 +21,4 @@ clean:
 	rm -f sdt runtime.js
 
 check:
-	echo "done."
+	bash tests/test.sh
