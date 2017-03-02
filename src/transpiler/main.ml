@@ -1,3 +1,4 @@
+open Ast_iterator
 open Core.Std
 open Batteries
 open Lexer

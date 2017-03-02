@@ -8,21 +8,21 @@ type id = string
 type constr = Constr of id
 
 type value =
-    | Variable of id
     | Constr of id
-    | State of id
     | Immediate of int
     | Op of id * value list
+    | State of id
+    | Variable of id
 
 type branch = Branch of id * exp list
 
 and exp =
-  | VarAssign of id * value (* x = 3 *)
-  | StateAssign of id * value (* state(x) = 3*)
-  | Skip (* skip *)
-  | Reset of id (* o.reset() *)
-  | Step of id list * id * value list (* a = o.step(x : int)*)
   | Case of id * branch list
+  | Reset of id (* o.reset() *)
+  | Skip (* skip *)
+  | StateAssign of id * value (* state(x) = 3*)
+  | Step of id list * id * value list (* a = o.step(x : int)*)
+  | VarAssign of id * value (* x = 3 *)
 ;;
 
 
