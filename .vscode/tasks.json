@@ -6,6 +6,7 @@
         "taskName": "clean"
     }, {
         "taskName": "all",
+        "isBuildCommand": true,
         "problemMatcher": {
             "fileLocation": "relative",
             "owner": "ocaml",
