@@ -21,6 +21,6 @@ machine move_x =
   step(key : dir, x: int) returns (x_ : int) =
     var x_ : int in
   case (key) {
-     Left : x_ = minus(x, 20) |
-     Right : x_ = plus(x, 20)
+     Left : x_ = subu(x, 20) |
+     Right : x_ = addu(x, 20)
   }

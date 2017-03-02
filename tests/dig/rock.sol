@@ -37,7 +37,7 @@ machine countdown =
         state(count) = 300
     step() returns (t : atm) =
         var x : int, t : atm in
-        x = minus(state(count), 1);
+        x = subu(state(count), 1);
         b = less_than(x, 0);
         case (b) {
             True : t = Fall |
@@ -53,6 +53,6 @@ machine fall =
       var y : int, diff : int, t : atm in
       case (stop) { True: diff = 0 |
                     False: diff = 4};
-      y = plus(y_in, diff);
+      y = addu(y_in, diff);
       case (stop) { True: t = Stop |
                     False: t = Fall}

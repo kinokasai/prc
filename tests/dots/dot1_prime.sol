@@ -14,7 +14,7 @@ machine point =
     case (e) {
       Collide: state(vx) = vx; state(vy) = vy
     };
-    x = times(plus(state(x), state(vx)), state(speed));
-    y = times(plus(state(y), state(vy)), state(speed));
+    x = mult(addu(state(x), state(vx)), state(speed));
+    y = mult(addu(state(y), state(vy)), state(speed));
     state(x) = x;
     state(y) = y

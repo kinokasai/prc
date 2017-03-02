@@ -1,18 +1,26 @@
 /* Standard math functions */
 
-function plus(a, b) {
+function add(a, b) {
     return a + b;
 }
 
-function minus(a, b) {
+function addu(a, b) {
+    return Math.min(a + b, Number.MAX_SAFE_INTEGER);
+}
+
+function sub(a, b) {
     return a - b;
 }
 
-function uminus(a) {
+function subu(a, b) {
+    return Math.max(a - b, Number.MIN_SAFE_INTEGER);
+}
+
+function neg(a) {
     return -a;
 }
 
-function times(a, b) {
+function mult(a, b) {
     return a * b;
 }
 

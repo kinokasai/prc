@@ -29,10 +29,10 @@ point.prototype.step = function(e, x, y, vx, vy) {
       [x, y] = this.move.step(x, y, this.vx, this.vy, this.speed);
       break;
     case event_enum.Left:
-      this.speed = minus(this.speed, 1);
+      this.speed = subu(this.speed, 1);
       break;
     case event_enum.Right:
-      this.speed = plus(this.speed, 1);
+      this.speed = addu(this.speed, 1);
       break;
   };
   return [x, y];
@@ -46,8 +46,8 @@ point.prototype.step = function(e, x, y, vx, vy) {
   }
   
   move.prototype.step = function(x, y, vx, vy, speed) {
-    x = plus(x, times(vx, speed));
-    y = plus(y, times(vy, speed));
+    x = addu(x, mult(vx, speed));
+    y = addu(y, mult(vy, speed));
     return [x, y];
   }
   

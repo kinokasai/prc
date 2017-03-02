@@ -12,8 +12,8 @@ machine point =
     case (e) {
       Collide: state(vx) = vx; state(vy) = vy |
       None: (x, y) = move.step(x, y, state(vx), state(vy), state(speed)) |
-      Left: state(speed) = minus(state(speed), 1) |
-      Right: state(speed) = plus(state(speed), 1)
+      Left: state(speed) = subu(state(speed), 1) |
+      Right: state(speed) = addu(state(speed), 1)
     }
 
 machine move =
@@ -22,5 +22,5 @@ machine move =
   reset () = skip
   step(x: int, y: int, vx: int, vy: int, speed:int) returns (x: int, y: int) =
     var in
-    x = plus(x, times(vx, speed));
-    y = plus(y, times(vy, speed))
+    x = addu(x, mult(vx, speed));
+    y = addu(y, mult(vy, speed))
