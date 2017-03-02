@@ -1,0 +1,23 @@
+*.annot
+*.cmo
+*.cma
+*.cmi
+*.a
+*.o
+*.cmx
+*.cmxs
+*.cmxa
+sdt
+runtime.js
+
+# ocamlbuild working directory
+_build/
+src/transpiler/_build
+
+# ocamlbuild targets
+*.byte
+*.native
+
+# oasis generated files
+setup.data
+setup.log
