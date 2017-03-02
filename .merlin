@@ -1,0 +1,3 @@
+S src/transpiler/**
+B src/transpiler/_build
+PKG batteries core menhir ocamllex
