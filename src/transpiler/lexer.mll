@@ -24,6 +24,7 @@ rule token = parse
     | "machine" { MACHINE }
     | "memory" { MEMORY }
     | "instances" { INSTANCES }
+    | "interface" { INTERFACE }
     | "reset" { RESET }
     | "step" { STEP }
     | "returns" { RETURNS }

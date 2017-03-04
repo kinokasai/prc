@@ -5,7 +5,7 @@
 %token SEMICOLON COLON EQUALS COMMA DOT PIPE
 %token EOF
 %token LPAREN RPAREN LBRACE RBRACE
-%token MACHINE MEMORY RESET STATE STEP INSTANCES RETURNS VAR IN TYPE CASE
+%token MACHINE MEMORY RESET STATE STEP INSTANCES RETURNS VAR IN TYPE CASE INTERFACE
 %token SKIP
 %token <string> CONSTR
 %token <string> ID
@@ -22,10 +22,11 @@ type_dec_list:
     | tdl = list(td = type_dec { td }) { tdl }
 
 type_dec:
-    | TYPE id = ID EQUALS cl = separated_list(PIPE, constr) {TypeDec(id, cl)}
+    | TYPE id = ID EQUALS cl = separated_list(PIPE, ty) {TypeDec(id, cl)}
 
-constr:
-    | c = CONSTR { c }
+ty:
+    | id = CONSTR LPAREN vd = separated_list(COMMA, var_dec) RPAREN {Ty(id, vd)}
+    | id = CONSTR {Ty(id, [])}
 
 machine_list:
     | ml = list(m = machine { m }) { ml }
@@ -33,10 +34,11 @@ machine_list:
 
 machine:
     | MACHINE i = ident EQUALS
+        interface = option(INTERFACE i = ID {i})
         MEMORY m = memory INSTANCES inst = instances
         RESET LPAREN RPAREN EQUALS e = seq_exp
         STEP se = step_dec
-        { { id = i; memory = m; instances = inst; reset = e; step = se;} }
+        { { id = i; memory = m; instances = inst; interface = interface; reset = e; step = se;} }
 
 memory:
     | vd = var_decs { vd }

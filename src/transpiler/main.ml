@@ -3,7 +3,6 @@ open Core.Std
 open Batteries
 open Lexer
 open Types
-open Print
 open Printexc
 open Js
 
@@ -15,8 +14,8 @@ let main filename callback =
         print_string (callback ast)
     with
     | Parser.Error ->
-        (Printf.eprintf "At offset %d: syntax error.\n%!" (Lexing.lexeme_start
-        filebuf);
+        (Printf.eprintf "At offset %d: syntax error on token: \"%s\".\n%!" (Lexing.lexeme_start
+        filebuf) (Lexing.lexeme filebuf);
         exit 2)
     | SyntaxError(str) ->
         print_string str
@@ -32,7 +31,7 @@ let command =
         )
     (fun print filename () ->
         match print with
-            | true -> main filename string_of_ast
+            | true -> main filename js_of_ast
             | false -> main filename js_of_ast
     )
 

@@ -1,9 +1,12 @@
 type opcode =
   | Plus | Minus
 
-type type_dec = TypeDec of string * string list
 
 type id = string
+
+type var_dec = VarDec of id * id
+type ty = Ty of string * var_dec list
+type type_dec = TypeDec of string * ty list
 
 type constr = Constr of id
 
@@ -26,7 +29,6 @@ and exp =
 ;;
 
 
-type var_dec = VarDec of id * id
 type mach_dec = MachDec of id * id
 type step_dec =
     {
@@ -41,6 +43,7 @@ type machine =
         id : id;
         memory : var_dec list;
         instances : mach_dec list;
+        interface : id option;
         reset : exp list;
         step : step_dec;
     }
@@ -50,4 +53,10 @@ type ast =
         tdl : type_dec list;
         mdl : machine list;
     }
+
+let var_dec_eq vda vdb =
+    match (vda, vdb) with
+    | (VarDec(ida, tida), VarDec(idb, tidb)) when (ida = idb) && (tida = tidb) -> true
+    | _ -> false
+
 let wrap s = "(" ^ s ^ ")";;
