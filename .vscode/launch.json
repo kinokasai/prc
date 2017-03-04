@@ -1,0 +1,17 @@
+// .vscode/launch.json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "OCaml",
+            "type": "ocamldebug",
+            "request": "launch",
+            "program": "${workspaceRoot}/sdt",
+            "arguments": [
+              "tests/dots/dot2.sol"
+              ],
+            "stopOnEntry": false,
+            "preLaunchTask": "all" // Build before launch
+        }
+    ]
+}
