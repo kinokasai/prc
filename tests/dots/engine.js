@@ -23,7 +23,7 @@ function keyPressHandler(e) {
 var points = [make_point(), make_point()]
 points[1].x = 160;
 points[1].vx = -1;
-points[1].node.step(event_enum.Collide, undefined, undefined, -1, 1);
+points[1].node.collide(-1, 1);
 
 function make_point() {
     point_ = {x: 400, y: 200, vx: 1, vy: 1, node: new point()};
@@ -33,13 +33,13 @@ function make_point() {
 
 function speed_up() {
     points.forEach(function(point) {
-        point.node.step(event_enum.Right, undefined, undefined, undefined, undefined);
+        point.node.speedUp();
     })
 }
 
 function speed_down() {
     points.forEach(function(point) {
-        point.node.step(event_enum.Left, undefined, undefined, undefined, undefined);
+        point.node.speedDown();
     })
 }
 
@@ -61,13 +61,12 @@ function collide(point) {
     });
     if (bump) {
         console.log("bump");
-        point.node.step(event_enum.Collide, undefined, undefined, point.vx, point.vy);
+        point.node.collide(point.vx, point.vy);
     }
 }
 
 function move_point(point) {
-    [point.x, point.y] = point.node.step(event_enum.None, point.x, point.y,
-                                                          undefined, undefined);
+    [point.x, point.y] = point.node.move(point.x, point.y)
 }
 
 function draw() {

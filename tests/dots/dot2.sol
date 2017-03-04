@@ -1,8 +1,9 @@
-type event = Collide | None | Left | Right
+type event = Collide(vx: int, vy:int) | Move(x: int, y: int) | SpeedDown | SpeedUp
 
 machine point =
+  interface event
   memory x : int, y : int, speed : int
-  instances move : move
+  instances move_point : move
   reset () =
     state(vx) = 1;
     state(vy) = 1;
@@ -11,9 +12,9 @@ machine point =
     var in
     case (e) {
       Collide: state(vx) = vx; state(vy) = vy |
-      None: (x, y) = move.step(x, y, state(vx), state(vy), state(speed)) |
-      Left: state(speed) = subu(state(speed), 1) |
-      Right: state(speed) = addu(state(speed), 1)
+      Move: (x, y) = move_point.step(x, y, state(vx), state(vy), state(speed)) |
+      SpeedUp: state(speed) = addu(state(speed), 1) |
+      SpeedDown: state(speed) = subu(state(speed), 1)
     }
 
 machine move =
