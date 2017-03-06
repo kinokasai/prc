@@ -23,50 +23,48 @@ function keyPressHandler(e) {
 var points = [make_point(), make_point()]
 points[1].x = 160;
 points[1].vx = -1;
-points[1].node.collide(-1, 1);
+points[1].collide(-1, 1);
 
 function make_point() {
-    point_ = {x: 400, y: 200, vx: 1, vy: 1, node: new point()};
-    point_.node.reset();
+    point_ = new point()
+    point_.reset();
     return point_;
 }
 
 function speed_up() {
     points.forEach(function(point) {
-        point.node.speedUp();
+        point.speedUp();
     })
 }
 
 function speed_down() {
     points.forEach(function(point) {
-        point.node.speedDown();
+        point.speedDown();
     })
 }
 
 function collide(point) {
     bump = false;
+    var vy = point.vy;
+    var vx = point.vx;
     if (point.y < 0 || point.y + 10 > canvas.height) {
-        point.vy = -point.vy;
+        var vy = -vy;
         bump = true;
     }
     if (point.x < 0 || point.x + 10 > canvas.width) {
-        point.vx = -point.vx;
+        var vx = -vx;
         bump = true;
     }
     points.forEach(function(val) {
         if (!bump && point != val && aabb(point, val, 10)) {
-            point.vx = -point.vx;
+           lvx = -vx;
             bump = true;
         }
     });
     if (bump) {
         console.log("bump");
-        point.node.collide(point.vx, point.vy);
+        point.collide(vx, vy);
     }
-}
-
-function move_point(point) {
-    [point.x, point.y] = point.node.move(point.x, point.y)
 }
 
 function draw() {
@@ -74,7 +72,7 @@ function draw() {
         collide(point);
     });
     points.forEach(function (point) {
-        move_point(point);
+        point.move(point.x, point.y)
     })
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     points.forEach(function (point) {
