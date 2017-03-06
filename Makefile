@@ -23,5 +23,5 @@ clean:
 	(cd src/transpiler; ocamlbuild -clean)
 	rm -f sdt runtime.js
 
-check:
+check: all
 	bash tests/test.sh

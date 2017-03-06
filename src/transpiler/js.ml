@@ -5,6 +5,7 @@ open Helpers
 module Smap = Map.Make(String);;
 let tidmap = ref Smap.empty;;
 let tmap = ref Smap.empty;;
+let interface_event_id = ref None
 
 let concat = String.concat;;
 
@@ -58,20 +59,27 @@ let rec js_of_exp = function
             " = this." ^ id ^
             ".step(" ^ (List.map js_of_val vll |> concat ", ") ^ ")"
     | Case(id, bl) ->
-            let a = "switch" ^ wrap id ^ " {" ^ incendl() in
-            let b = List.map js_of_branch bl |> concat (iendl()) in
-            let c = decendl() in
-            let d = "}" in
-            a ^ b ^ c ^ d
+      let f = (fun id -> match !interface_event_id with
+                            | Some event_id when id = event_id -> id ^ ".id"
+                            | _ -> id) in
+      let a = "switch" ^ wrap (f id) ^ " {" ^ incendl() in
+      let b = List.map (js_of_branch id) bl |> concat (iendl()) in
+      let c = decendl() in
+      let d = "}" in
+      a ^ b ^ c ^ d
 
-and js_of_branch = function
-    | Branch(id, exp) ->
-            let full_id = Smap.find id !tidmap in
-            let a = "case " ^ full_id ^ ":" ^ incendl() in
-            let b = js_of_seqexp exp ^ iendl() in
-            let c = "break;" in
-            let d = decindent() in
-            a ^ b ^ c ^ d
+and js_of_branch switch_id = function
+  | Branch(constr, exp) ->
+    (*let full_id = Smap.find id !tidmap in*)
+    let full_id = Smap.find constr.id !tidmap in
+    let case = "case " ^ full_id ^ ":" ^ incendl() in
+    let f = (fun vid -> "var " ^ vid ^ " = " ^ switch_id ^ "." ^ vid ^ ";") in
+    let constr_vars = List.map f constr.param |> concat (iendl()) in
+    let exp = iendl() ^ js_of_seqexp exp ^ iendl() in
+    let break = "break;" in
+    let d = decindent() in
+    case ^ constr_vars ^ exp ^ break ^ d
+            
 
 and js_of_seqexp sexp =
     let a = (List.map js_of_exp sexp |> concat (";" ^ iendl())) in
@@ -85,56 +93,55 @@ let js_of_vardecs vds =
     List.map (fun vd -> "var " ^ (id_of_vardec vd) ^ " = undefined;") vds
         |> concat (iendl())
 
-let js_of_step = function
-    | {avd; rvd; vd; sexp} ->
-            let a = "step = function(" ^ js_of_vardecs_id avd ^ ") {" ^ incendl() in
-            let b = js_of_vardecs vd in
-            let b' = if String.length b == 0 then "" else iendl() in
-            let c = js_of_seqexp sexp ^ iendl() in
-            let d = "return [" ^ js_of_vardecs_id rvd ^ "];" in
-            let e = decendl() in
-            a ^ b ^ b' ^ c ^ d ^ e
+let js_of_step interface = function
+  | {avd; rvd; vd; sexp} ->
+    let _ = if interface then interface_event_id := (function |VarDec(id, _) -> Some id) (List.hd avd) in
+    let a = "step = function(" ^ js_of_vardecs_id avd ^ ") {" ^ incendl() in
+    let b = js_of_vardecs vd in
+    let b' = if String.length b == 0 then "" else iendl() in
+    let c = js_of_seqexp sexp ^ iendl() in
+    let d = if interface then "return this;"
+                         else "return [" ^ js_of_vardecs_id rvd ^ "];" in
+    let e = decendl() in
+    a ^ b ^ b' ^ c ^ d ^ e
 
-let js_of_type mid tid avdl = function | Ty(id, vdl) ->
+let js_of_type mid tid = function | Ty(id, vdl) ->
   let std = (fun s -> let c = Char.lowercase_ascii (String.get s 0) in
                       String.make 1 c ^ (Batteries.String.lchop s)) in
-  let f = (fun a ->
-            match List.mem a vdl with
-              | true -> (function | VarDec(id, _) -> id) a
-              | false -> "undefined") in
-  let event = js_of_constr tid id in
-  let step_args = List.map f avdl |> concat ", " in
-  (* Note that this is really ugly, but that should be fixed when usign a JS ast*)
-  (* XXX: Use JS AST *)
-  let step_args = String.sub step_args 9 ((String.length step_args) - 9) in
   let arg_list = List.map (function |VarDec(id, _) -> id) vdl |> concat ", " in
+  let arg_lits = List.map (function |VarDec(id, _) -> id ^ ":" ^ id) vdl |> concat ", " in
+  let arg_lits = if arg_lits = "" then "" else ", " ^ arg_lits in
   let fname = mid ^ ".prototype." ^ std id ^ " = function (" ^ arg_list ^ ") {" ^ incendl() in
-  let step_method = "return this.step(" ^ event ^ step_args ^ ");" ^ decendl() in
-  fname ^ step_method ^ "}\n"
+  let full_id = Smap.find id !tidmap in
+  let event_lit = "{id: " ^ full_id ^ arg_lits ^ "}" in
+  let step_method = "this.step(" ^ event_lit ^ ");" ^ iendl() in
+  let ret = "return this;" ^ decendl() in 
+  fname ^ step_method ^ ret ^ "}\n"
 
-let js_of_interface mid id avdl =
+let js_of_interface mid id =
   let td = Smap.find id !tmap in
-    List.map (js_of_type mid id avdl) td |> concat "\n"
+    List.map (js_of_type mid id) td |> concat "\n"
 
 let rec js_of_machine = function
-    | {id; memory; instances; interface; reset; step} ->
-            let a = "function " ^ id ^ "() {" in
-            let a' = incendl() in
-            let b = js_of_memory memory in
-            let c = js_of_instances instances in
-            let b' = if empty b then "" else (if empty c then decendl() else iendl()) in
-            let c' = if empty c then "" else (if empty b then "" else decendl()) in
-            let d = "}" ^ iendl() ^ iendl() in
-            let e = id ^ ".prototype.reset = function() {" ^ incendl() in
-            let f = js_of_reset reset instances in
-            let g = decendl() in
-            let h = "}" ^ iendl() ^ iendl() in
-            let i = id ^ ".prototype." ^ js_of_step step in
-            let j = "}" ^ iendl() in
-            let k = match interface with
-              | None -> ""
-              | Some tid -> js_of_interface id tid step.avd in
-            a ^ a' ^ b ^ b' ^ c ^ c' ^ d ^ e ^ f ^ g ^ h ^ i ^ j ^ k
+  | {id; memory; instances; interface; reset; step} ->
+    let is_interface = BatOption.is_some interface in
+    let a = "function " ^ id ^ "() {" in
+    let a' = incendl() in
+    let b = js_of_memory memory in
+    let c = js_of_instances instances in
+    let b' = if empty b then "" else (if empty c then decendl() else iendl()) in
+    let c' = if empty c then "" else (if empty b then "" else decendl()) in
+    let d = "}" ^ iendl() ^ iendl() in
+    let e = id ^ ".prototype.reset = function() {" ^ incendl() in
+    let f = js_of_reset reset instances in
+    let g = decendl() in
+    let h = "}" ^ iendl() ^ iendl() in
+    let i = id ^ ".prototype." ^ js_of_step is_interface step in
+    let j = "}" ^ iendl() in
+    let k = match interface with
+      | None -> ""
+      | Some tid -> js_of_interface id tid in
+    a ^ a' ^ b ^ b' ^ c ^ c' ^ d ^ e ^ f ^ g ^ h ^ i ^ j ^ k
 
 and js_of_memory mem =
     List.map (fun vd -> "this." ^ (id_of_vardec vd) ^ " = undefined;") mem

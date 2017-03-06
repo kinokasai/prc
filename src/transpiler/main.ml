@@ -11,7 +11,7 @@ let main filename callback =
     let filebuf = Lexing.from_input input in
     try
       let ast = Parser.init Lexer.token filebuf in
-        print_string (callback ast)
+      print_string (callback ast)
     with
     | Parser.Error ->
         (Printf.eprintf "At offset %d: syntax error on token: \"%s\".\n%!" (Lexing.lexeme_start

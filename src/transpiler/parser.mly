@@ -80,7 +80,11 @@ branch_list:
     | bl = separated_list(PIPE, branch) { bl }
 
 branch:
-    | id = CONSTR COLON e = seq_exp { Branch(id, e) }
+    | constr = constr COLON e = seq_exp { Branch(constr, e) }
+
+constr:
+    | id = CONSTR LPAREN idl = separated_list(COMMA, ID) RPAREN {{id; param=idl}}
+    | id = CONSTR {{id; param=[]}}
 
 val_list:
     | vl = separated_list(COMMA, value) { vl }

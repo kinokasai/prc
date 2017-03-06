@@ -8,7 +8,7 @@ type var_dec = VarDec of id * id
 type ty = Ty of string * var_dec list
 type type_dec = TypeDec of string * ty list
 
-type constr = Constr of id
+type constr = {id : id; param: id list;}
 
 type value =
     | Constr of id
@@ -17,7 +17,7 @@ type value =
     | State of id
     | Variable of id
 
-type branch = Branch of id * exp list
+type branch = Branch of constr * exp list
 
 and exp =
   | Case of id * branch list
