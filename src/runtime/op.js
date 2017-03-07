@@ -44,19 +44,19 @@ function not(a) {
 
 /* Comparison ops */
 
-function greater_than(a, b) {
+function gt(a, b) {
     return a > b;
 }
 
-function egreater_than(a, b) {
+function ge(a, b) {
     return a >= b;
 }
 
-function less_than(a, b) {
+function lt(a, b) {
     return a < b;
 }
 
-function e_less_than(a, b) {
+function le(a, b) {
     return a <= b;
 }
 

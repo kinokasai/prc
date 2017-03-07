@@ -5,13 +5,11 @@ all: runtime
 runtime:
 	cat src/runtime/op.js src/runtime/runtime.js > runtime.js
 
-engine:
-	cat src/runtime/physics.js src/runtime/engine.js > engine.js
-
-game: runtime engine
+game: runtime
 	mkdir -p ${name}
 	mv runtime.js ${name}
 	cp src/runtime/engine.js ${name}
+	cp src/runtime/game.js ${name}/${name}.js
 	cp src/runtime/game.html ${name}/${name}.html
 
 run:
