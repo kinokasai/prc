@@ -11,6 +11,7 @@ var dir_enum = Object.freeze({
 var player_x = 0;
 var rock_y = 0;
 var collide = false;
+var stop = false;
 
 var update_rock_node = new update_rock();
 update_rock_node.reset();
@@ -43,7 +44,10 @@ function draw() {
     if (player_x > 100) {
         collide = true;
     }
-    [rock_y] = update_rock_node.step(collide, false);
+    if (rock_y > canvas.width - 20) {
+        stop = true;
+    }
+    [rock_y] = update_rock_node.step(collide, stop);
     draw_rect(100, rock_y);
     draw_rect(player_x, 200);
     requestAnimationFrame(draw);
