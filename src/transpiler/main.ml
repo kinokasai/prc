@@ -6,6 +6,14 @@ open Types
 open Printexc
 open Js
 
+let lexsub pos str lexeme =
+    let len = String.length lexeme in
+    let head = String.sub str (pos - 40) (40 - len) and
+        tail = String.sub str (pos + len) (40 - len) and
+        red = "\027[32m" and
+        endc = "\027[0m" in
+    head ^ red ^ lexeme ^ endc ^ tail
+
 let main filename callback =
     let input = open_in filename in
     let filebuf = Lexing.from_input input in
@@ -14,8 +22,8 @@ let main filename callback =
       print_string (callback ast)
     with
     | Parser.Error ->
-        (Printf.eprintf "At offset %d: syntax error on token: \"%s\".\n%!" (Lexing.lexeme_start
-        filebuf) (Lexing.lexeme filebuf);
+        (Printf.eprintf "At offset %d: syntax error on token: \"%s\"!\n%s\n" (Lexing.lexeme_start
+        filebuf) (Lexing.lexeme filebuf) (lexsub (filebuf.lex_start_pos) filebuf.lex_buffer (Lexing.lexeme filebuf));
         exit 2)
     | SyntaxError(str) ->
         print_string str

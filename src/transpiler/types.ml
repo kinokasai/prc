@@ -13,6 +13,7 @@ type constr = {id : id; param: id list;}
 type value =
     | Constr of id
     | Immediate of int
+    | Float of float
     | Op of id * value list
     | State of id
     | Variable of id
