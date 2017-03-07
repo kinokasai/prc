@@ -7,6 +7,7 @@
 let digit = ['0'-'9']
 let white_ = [' ' '\t' '\n']+
 let num = digit+
+let float = digit+ ('.'digit*)?
 let ident = ['a'-'z'] ['a'-'z' 'A'-'Z' '0'-'9' '_']*
 let type_const = ['A'-'Z']['a'-'z' 'A'-'Z']*
 
@@ -38,6 +39,7 @@ rule token = parse
     | ident as id { ID id }
     | type_const as tc { CONSTR tc }
     | num as i { INT (int_of_string i) }
+    | float as f { FLOAT (float_of_string f)}
     | eof { EOF }
     | _
         { raise (SyntaxError ("Syntax Error: " ^ Lexing.lexeme lexbuf)) }

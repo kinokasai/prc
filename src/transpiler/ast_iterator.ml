@@ -30,6 +30,7 @@ module L = struct
     | Variable(id) -> sub.id sub id
     | Constr(id) -> sub.id sub id
     | State(id) -> sub.id sub id
+    | Float(f) -> ()
     | Immediate(i) -> ()
     | Op(id, vll) -> sub.id sub id; List.iter (sub.value sub) vll
 

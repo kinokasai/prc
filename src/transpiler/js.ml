@@ -46,6 +46,7 @@ let rec js_of_val = function
     | Variable(id) -> id
     | State(id) -> "this." ^ id
     | Immediate(i) -> string_of_int i
+    | Float(f) -> string_of_float f
     | Constr(id) -> Smap.find id !tidmap
     | Op(id, vll) -> id ^ wrap (List.map js_of_val vll |> concat ", ")
 

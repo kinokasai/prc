@@ -11,6 +11,7 @@
 %token <string> ID
 
 %token <int> INT
+%token <float> FLOAT
 
 %start <Types.ast> init
 %%
@@ -93,6 +94,7 @@ value:
     | st = state { st }
     | id = ID LPAREN vl = val_list RPAREN { Op(id, vl) }
     | i = INT { Immediate(i) }
+    | f = FLOAT { Float(f) }
     | id = ID { Variable(id) }
     | cid = CONSTR { Constr(cid) }
 
