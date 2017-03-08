@@ -57,7 +57,7 @@ function collide(point) {
     }
     points.forEach(function(val) {
         if (!bump && point != val && aabb(point, val, 10)) {
-           lvx = -vx;
+            vx = -vx;
             bump = true;
         }
     });
