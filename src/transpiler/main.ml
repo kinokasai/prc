@@ -1,6 +1,7 @@
 open Ast_iterator
 open Core.Std
 open Batteries
+
 open Lexer
 open Types
 open Printexc
@@ -22,8 +23,9 @@ let main filename callback =
       print_string (callback ast)
     with
     | Parser.Error ->
-        (Printf.eprintf "At offset %d: syntax error on token: \"%s\"!\n%s\n" (Lexing.lexeme_start
-        filebuf) (Lexing.lexeme filebuf) (lexsub (filebuf.lex_start_pos) filebuf.lex_buffer (Lexing.lexeme filebuf));
+        (Printf.eprintf "At offset %d: syntax error on token: \"%s\"!\n%s\n"
+        (Lexing.lexeme_start filebuf) (Lexing.lexeme filebuf)
+        (lexsub (filebuf.Lexing.lex_start_pos) filebuf.Lexing.lex_buffer (Lexing.lexeme filebuf));
         exit 2)
     | SyntaxError(str) ->
         print_string str
