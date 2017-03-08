@@ -7,4 +7,4 @@ notifications:
       - doussot.alexandre@gmail.com
     on_success: never
 env:
-  - OCAML_VERSION=4.04.0 OPAM_VERSION=1.2.2
+  - OCAML_VERSION=4.04.0 OPAM_VERSION=1.2.2 OPAM_SWITCH=4.03.0
