@@ -106,15 +106,26 @@ let js_of_step interface = function
     let e = decendl() in
     a ^ b ^ b' ^ c ^ d ^ e
 
+let js_obj_of_typedec type_id = function | Ty(id, vdl) ->
+  let arg_lits = List.map (function |VarDec(id, _) -> id ^ ":" ^ id) vdl |> concat ", " in
+  let args = List.map (function |VarDec(id, _) -> id) vdl |> concat ", " in
+  let func_name = type_id ^ "_type." ^ id ^ " = function(" ^ args ^ ") {" ^ incendl() in
+  let arg_lits = if arg_lits = "" then "" else ", " ^ arg_lits in
+  let full_id = Smap.find id !tidmap in
+  let event_lit = "{id: " ^ full_id ^ arg_lits ^ "}" in
+  let ret = "return " ^ event_lit ^ decendl() in
+  func_name ^ ret ^ "}\n"
+
 let js_of_type mid tid = function | Ty(id, vdl) ->
   let std = (fun s -> let c = Char.lowercase_ascii (String.get s 0) in
                       String.make 1 c ^ (Batteries.String.lchop s)) in
   let arg_list = List.map (function |VarDec(id, _) -> id) vdl |> concat ", " in
-  let arg_lits = List.map (function |VarDec(id, _) -> id ^ ":" ^ id) vdl |> concat ", " in
+  (*let arg_lits = List.map (function |VarDec(id, _) -> id ^ ":" ^ id) vdl |> concat ", " in
   let arg_lits = if arg_lits = "" then "" else ", " ^ arg_lits in
-  let fname = mid ^ ".prototype." ^ std id ^ " = function (" ^ arg_list ^ ") {" ^ incendl() in
   let full_id = Smap.find id !tidmap in
-  let event_lit = "{id: " ^ full_id ^ arg_lits ^ "}" in
+  let event_lit = "{id: " ^ full_id ^ arg_lits ^ "}" in*)
+  let fname = mid ^ ".prototype." ^ std id ^ " = function (" ^ arg_list ^ ") {" ^ incendl() in
+  let event_lit = tid ^ "_type." ^ id  ^ "(" ^ arg_list ^ ")" in
   let step_method = "this.step(" ^ event_lit ^ ");" ^ iendl() in
   let ret = "return this;" ^ decendl() in 
   fname ^ step_method ^ ret ^ "}\n"
@@ -168,8 +179,10 @@ let js_of_type_dec = function
    let b = List.map const_val cl |> concat ("," ^ iendl()) in
    let _ = tmap := Smap.add id cl !tmap in
    let c = decendl() in
-   let d = "});" ^ iendl() in
-   a ^ b ^ c ^ d
+   let d = "});" ^ iendl() ^ iendl() in
+   let obj = "function " ^ id ^ "_type() {}" ^ iendl() ^ iendl() in
+   let variants = List.map (js_obj_of_typedec id) cl |> concat (iendl()) in
+   a ^ b ^ c ^ d ^ obj ^ variants
 
 let js_of_machine_list ml =
     List.map js_of_machine ml |> concat (iendl())
@@ -178,7 +191,7 @@ let js_of_type_dec_list tdl =
     List.map js_of_type_dec tdl |> concat (iendl())
 
 let js_of_ast = function
-    | {tdl; mdl;} ->
-            let a = js_of_type_dec_list tdl ^ iendl() in
-            let b = js_of_machine_list mdl ^ iendl() in
-            a ^ b
+  | {tdl; mdl;} ->
+    let a = js_of_type_dec_list tdl ^ iendl() in
+    let b = js_of_machine_list mdl ^ iendl() in
+    a ^ b
