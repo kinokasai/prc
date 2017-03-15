@@ -60,7 +60,7 @@ function move_snake() {
 }
 
 function game_over() {
-    alert("snek iz ded");
+    alert("Mr. Snake has died this morning. Please come to his funeral.");
     document.location.reload();
 }
 
