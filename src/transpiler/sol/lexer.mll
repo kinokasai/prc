@@ -38,8 +38,8 @@ rule token = parse
     | "case" { CASE }
     | ident as id { ID id }
     | type_const as tc { CONSTR tc }
-    | num as i { INT (int_of_string i) }
-    | float as f { FLOAT (float_of_string f)}
+    | num as i { LITTERAL i }
+    | float as f { LITTERAL f }
     | eof { EOF }
     | _
         { raise (SyntaxError ("Syntax Error: " ^ Lexing.lexeme lexbuf)) }

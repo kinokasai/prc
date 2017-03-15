@@ -1,21 +1,14 @@
+open Shared.Types
+
 type opcode =
   | Plus | Minus
 
-
-type id = string
-
-type var_dec = VarDec of id * id
-type ty = Ty of string * var_dec list
-type type_dec = TypeDec of string * ty list
-
-type constr = {id : id; param: id list;}
-
 type value =
     | Constr of id
-    | Immediate of int
-    | Float of float
+    | Litteral of string
     | Op of id * value list
     | State of id
+    | Step of id * value list
     | Variable of id
 
 type branch = Branch of constr * exp list
@@ -25,12 +18,16 @@ and exp =
   | Reset of id (* o.reset() *)
   | Skip (* skip *)
   | StateAssign of id * value (* state(x) = 3*)
-  | Step of id list * id * value list (* a = o.step(x : int)*)
-  | VarAssign of id * value (* x = 3 *)
+  | VarAssign of id list * value (* x = 3 *)
 ;;
 
 
-type mach_dec = MachDec of id * id
+type mach_dec = 
+  {
+    mach_id : id;
+    type_id : id;
+  }
+
 type step_dec =
     {
         avd : var_dec list;
@@ -49,15 +46,10 @@ type machine =
         step : step_dec;
     }
 
-type ast =
+type sol_ast =
     {
         tdl : type_dec list;
         mdl : machine list;
     }
-
-let var_dec_eq vda vdb =
-    match (vda, vdb) with
-    | (VarDec(ida, tida), VarDec(idb, tidb)) when (ida = idb) && (tida = tidb) -> true
-    | _ -> false
 
 let wrap s = "(" ^ s ^ ")";;

@@ -1,3 +1,4 @@
+open Shared.Types
 open Types
 open Printf
 open Helpers
@@ -33,32 +34,29 @@ let js_of_constr ty_id c_id = match c_id with
     | "False" -> "false"
     | _ -> ty_id ^ "_enum." ^ c_id
 
-let id_of_machdec = function
-    | MachDec(id, mid) -> id
+let id_of_machdec md =
+    md.mach_id
 
-let id_of_vardec = function
-    | VarDec(id, ty) -> id
+let id_of_vardec (var_dec:var_dec) =
+  var_dec.var_id
 
-let js_of_machdec = function
-    | MachDec(id, mid) -> "this." ^ id ^ " = new " ^ mid ^ "();"
+let js_of_machdec md =
+  "this." ^ md.mach_id ^ " = new " ^ md.type_id ^ "();"
 
 let rec js_of_val = function
-    | Variable(id) -> id
-    | State(id) -> "this." ^ id
-    | Immediate(i) -> string_of_int i
-    | Float(f) -> string_of_float f
-    | Constr(id) -> Smap.find id !tidmap
-    | Op(id, vll) -> id ^ wrap (List.map js_of_val vll |> concat ", ")
+  | Constr(id) -> Smap.find id !tidmap
+  | Litteral(lit) -> lit
+  | Op(id, vll) -> id ^ wrap (List.map js_of_val vll |> concat ", ")
+  | State(id) -> "this." ^ id
+  | Step(id, vll) -> "this." ^ id ^
+            ".step(" ^ (List.map js_of_val vll |> concat ", ") ^ ")"
+  | Variable(id) -> id
 
 let rec js_of_exp = function
-    | VarAssign(id, vl) -> id ^ " = " ^ js_of_val vl
+    | VarAssign(idl, vl) -> "[" ^ (idl |> concat ", ") ^ "] = " ^ js_of_val vl
     | StateAssign(id, vl) -> "this." ^ id ^ " = " ^ js_of_val vl
     | Skip -> ""
     | Reset(id) -> "this." ^ id ^ ".reset()"
-    | Step(vid, id, vll) ->
-            "[" ^ (vid |> concat ", ") ^ "]" ^
-            " = this." ^ id ^
-            ".step(" ^ (List.map js_of_val vll |> concat ", ") ^ ")"
     | Case(id, bl) ->
       let f = (fun id -> match !interface_event_id with
                             | Some event_id when id = event_id -> id ^ ".id"
@@ -75,7 +73,7 @@ and js_of_branch switch_id = function
     let full_id = Smap.find constr.id !tidmap in
     let case = "case " ^ full_id ^ ":" ^ incendl() in
     let f = (fun vid -> "var " ^ vid ^ " = " ^ switch_id ^ "." ^ vid ^ ";") in
-    let constr_vars = List.map f constr.param |> concat (iendl()) in
+    let constr_vars = List.map f constr.params |> concat (iendl()) in
     let exp = iendl() ^ js_of_seqexp exp ^ iendl() in
     let break = "break;" in
     let d = decindent() in
@@ -96,7 +94,7 @@ let js_of_vardecs vds =
 
 let js_of_step interface = function
   | {avd; rvd; vd; sexp} ->
-    let _ = if interface then interface_event_id := (function |VarDec(id, _) -> Some id) (List.hd avd) in
+    let _ = if interface then interface_event_id := Some (List.hd avd).var_id in
     let a = "step = function(" ^ js_of_vardecs_id avd ^ ") {" ^ incendl() in
     let b = js_of_vardecs vd in
     let b' = if String.length b == 0 then "" else iendl() in
@@ -106,26 +104,22 @@ let js_of_step interface = function
     let e = decendl() in
     a ^ b ^ b' ^ c ^ d ^ e
 
-let js_obj_of_typedec type_id = function | Ty(id, vdl) ->
-  let arg_lits = List.map (function |VarDec(id, _) -> id ^ ":" ^ id) vdl |> concat ", " in
-  let args = List.map (function |VarDec(id, _) -> id) vdl |> concat ", " in
-  let func_name = type_id ^ "_type." ^ id ^ " = function(" ^ args ^ ") {" ^ incendl() in
+let js_obj_of_typedec type_id ty = 
+  let arg_lits = List.map (fun vd -> vd.var_id ^ ":" ^ vd.var_id) ty.vdl |> concat ", " in
+  let args = List.map (fun vd -> vd.var_id) ty.vdl |> concat ", " in
+  let func_name = type_id ^ "_type." ^ ty.id ^ " = function(" ^ args ^ ") {" ^ incendl() in
   let arg_lits = if arg_lits = "" then "" else ", " ^ arg_lits in
-  let full_id = Smap.find id !tidmap in
+  let full_id = Smap.find ty.id !tidmap in
   let event_lit = "{id: " ^ full_id ^ arg_lits ^ "}" in
   let ret = "return " ^ event_lit ^ decendl() in
   func_name ^ ret ^ "}\n"
 
-let js_of_type mid tid = function | Ty(id, vdl) ->
+let js_of_type mid tid ty =
   let std = (fun s -> let c = Char.lowercase_ascii (String.get s 0) in
                       String.make 1 c ^ (Batteries.String.lchop s)) in
-  let arg_list = List.map (function |VarDec(id, _) -> id) vdl |> concat ", " in
-  (*let arg_lits = List.map (function |VarDec(id, _) -> id ^ ":" ^ id) vdl |> concat ", " in
-  let arg_lits = if arg_lits = "" then "" else ", " ^ arg_lits in
-  let full_id = Smap.find id !tidmap in
-  let event_lit = "{id: " ^ full_id ^ arg_lits ^ "}" in*)
-  let fname = mid ^ ".prototype." ^ std id ^ " = function (" ^ arg_list ^ ") {" ^ incendl() in
-  let event_lit = tid ^ "_type." ^ id  ^ "(" ^ arg_list ^ ")" in
+  let arg_list = List.map (fun vd -> vd.var_id) ty.vdl |> concat ", " in
+  let fname = mid ^ ".prototype." ^ std ty.id ^ " = function (" ^ arg_list ^ ") {" ^ incendl() in
+  let event_lit = tid ^ "_type." ^ ty.id  ^ "(" ^ arg_list ^ ")" in
   let step_method = "this.step(" ^ event_lit ^ ");" ^ iendl() in
   let ret = "return this;" ^ decendl() in 
   fname ^ step_method ^ ret ^ "}\n"
@@ -169,19 +163,18 @@ and js_of_reset rst instances =
     let b = js_of_seqexp rst in
     a ^ a' ^ b
 
-let js_of_type_dec = function
-  | TypeDec(id, cl) ->
-    let a = "var " ^ id ^ "_enum = Object.freeze({" ^ incendl() in
+let js_of_type_dec (type_dec: Shared.Types.type_dec) =
+    let a = "var " ^ type_dec.id ^ "_enum = Object.freeze({" ^ incendl() in
     let const_val =
-      (function | Ty(cid, vdl) ->
-        tidmap := Smap.add cid (js_of_constr id cid) !tidmap;
-        cid ^ ": " ^ (gen())) in
-   let b = List.map const_val cl |> concat ("," ^ iendl()) in
-   let _ = tmap := Smap.add id cl !tmap in
+      (fun (ty:Shared.Types.ty) ->
+        tidmap := Smap.add ty.id (js_of_constr type_dec.id ty.id) !tidmap;
+        ty.id ^ ": " ^ (gen())) in
+   let b = List.map const_val type_dec.type_list |> concat ("," ^ iendl()) in
+   let _ = tmap := Smap.add type_dec.id type_dec.type_list !tmap in
    let c = decendl() in
    let d = "});" ^ iendl() ^ iendl() in
-   let obj = "function " ^ id ^ "_type() {}" ^ iendl() ^ iendl() in
-   let variants = List.map (js_obj_of_typedec id) cl |> concat (iendl()) in
+   let obj = "function " ^ type_dec.id ^ "_type() {}" ^ iendl() ^ iendl() in
+   let variants = List.map (js_obj_of_typedec type_dec.id) type_dec.type_list |> concat (iendl()) in
    a ^ b ^ c ^ d ^ obj ^ variants
 
 let js_of_machine_list ml =
@@ -190,8 +183,7 @@ let js_of_machine_list ml =
 let js_of_type_dec_list tdl =
     List.map js_of_type_dec tdl |> concat (iendl())
 
-let js_of_ast = function
-  | {tdl; mdl;} ->
-    let a = js_of_type_dec_list tdl ^ iendl() in
-    let b = js_of_machine_list mdl ^ iendl() in
+let js_of_ast : sol_ast -> string = fun ast ->
+    let a = js_of_type_dec_list ast.tdl ^ iendl() in
+    let b = js_of_machine_list ast.mdl ^ iendl() in
     a ^ b

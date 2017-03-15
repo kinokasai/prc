@@ -1,5 +1,6 @@
 %{
   open Types
+  open Shared.Types
 %}
 
 %token SEMICOLON COLON EQUALS COMMA DOT PIPE
@@ -8,12 +9,9 @@
 %token MACHINE MEMORY RESET STATE STEP INSTANCES RETURNS VAR IN TYPE CASE INTERFACE
 %token SKIP
 %token <string> CONSTR
-%token <string> ID
+%token <string> ID LITTERAL
 
-%token <int> INT
-%token <float> FLOAT
-
-%start <Types.ast> init
+%start <Types.sol_ast> init
 %%
 
 init:
@@ -23,11 +21,11 @@ type_dec_list:
     | tdl = list(td = type_dec { td }) { tdl }
 
 type_dec:
-    | TYPE id = ID EQUALS cl = separated_list(PIPE, ty) {TypeDec(id, cl)}
+    | TYPE id = ID EQUALS type_list = separated_list(PIPE, ty) {{id; type_list}}
 
 ty:
-    | id = CONSTR LPAREN vd = separated_list(COMMA, var_dec) RPAREN {Ty(id, vd)}
-    | id = CONSTR {Ty(id, [])}
+    | id = CONSTR LPAREN vdl = separated_list(COMMA, var_dec) RPAREN {{id; vdl}}
+    | id = CONSTR {{id; vdl = []}}
 
 machine_list:
     | ml = list(m = machine { m }) { ml }
@@ -45,13 +43,13 @@ memory:
     | vd = var_decs { vd }
 
 mach_dec:
-    | id = ID COLON mid = ID { MachDec(id, mid) }
+    | mach_id = ID COLON type_id = ID { {mach_id; type_id} }
 
 instances:
     | md = separated_list(COMMA, mach_dec) { md }
 
 var_dec:
-    | id = ID COLON ty = ID { VarDec(id, ty) }
+    | var_id = ID COLON type_id = ID { {var_id; type_id} }
 
 var_decs:
     | vd = separated_list(COMMA, var_dec) { vd }
@@ -66,13 +64,10 @@ seq_exp:
 
 exp:
     | SKIP { Skip }
-    | id = ID EQUALS vl = value { VarAssign(id, vl) }
+    | id = ID EQUALS vl = value { VarAssign([id], vl) }
+    | LPAREN idl = separated_list(COMMA, ID) RPAREN EQUALS vl = value { VarAssign(idl, vl) }
     | STATE LPAREN id = ID RPAREN EQUALS vl = value { StateAssign(id, vl) }
     | id = ID DOT RESET { Reset(id) }
-    | LPAREN vd = separated_list(COMMA, ID) RPAREN
-        EQUALS id = ID DOT STEP LPAREN vl = val_list RPAREN { Step(vd, id, vl) }
-    | vid = ID EQUALS id = ID DOT STEP LPAREN vl = val_list RPAREN
-        { Step([vid], id,vl) }
     | CASE LPAREN id = ID RPAREN LBRACE bl = branch_list RBRACE
         { Case(id, bl) }
     ;
@@ -84,17 +79,17 @@ branch:
     | constr = constr COLON e = seq_exp { Branch(constr, e) }
 
 constr:
-    | id = CONSTR LPAREN idl = separated_list(COMMA, ID) RPAREN {{id; param=idl}}
-    | id = CONSTR {{id; param=[]}}
+    | id = CONSTR LPAREN idl = separated_list(COMMA, ID) RPAREN {{id; params=idl}}
+    | id = CONSTR {{id; params=[]}}
 
 val_list:
     | vl = separated_list(COMMA, value) { vl }
 
 value:
     | st = state { st }
+    | id = ID DOT STEP LPAREN vll = val_list RPAREN { Step(id, vll) }
     | id = ID LPAREN vl = val_list RPAREN { Op(id, vl) }
-    | i = INT { Immediate(i) }
-    | f = FLOAT { Float(f) }
+    | lit = LITTERAL { Litteral(lit) }
     | id = ID { Variable(id) }
     | cid = CONSTR { Constr(cid) }
 
