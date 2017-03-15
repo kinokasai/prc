@@ -20,6 +20,7 @@ function keyPressHandler(e) {
     }
 }
 
+var max_speed = 30;
 var points = [make_point(), make_point()]
 points[1].x = 160;
 points[1].vx = -1;
