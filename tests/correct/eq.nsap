@@ -1,0 +1,11 @@
+type a = Int(x : int)
+
+
+node count(i : int) -> (o : int) with
+  x = 3
+  y = 2 fby one()
+  o = plus(x, 2)
+  e = empty()
+
+node one() -> (i : int) with
+  i = 1
