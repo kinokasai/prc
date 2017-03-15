@@ -5,11 +5,43 @@ var dir_enum = Object.freeze({
   Right: 4
 });
 
+function dir_type() {}
+
+dir_type.Up = function() {
+  return {id: dir_enum.Up}
+}
+
+dir_type.Left = function() {
+  return {id: dir_enum.Left}
+}
+
+dir_type.Down = function() {
+  return {id: dir_enum.Down}
+}
+
+dir_type.Right = function() {
+  return {id: dir_enum.Right}
+}
+
 var event_enum = Object.freeze({
   Move: 5,
   MoveSecond: 6,
   ChangeDir: 7
 });
+
+function event_type() {}
+
+event_type.Move = function() {
+  return {id: event_enum.Move}
+}
+
+event_type.MoveSecond = function(x, y) {
+  return {id: event_enum.MoveSecond, x:x, y:y}
+}
+
+event_type.ChangeDir = function(d) {
+  return {id: event_enum.ChangeDir, d:d}
+}
 
 function node() {
   this.x = undefined;
@@ -102,17 +134,17 @@ node.prototype.step = function(e) {
   return this;
 }
 node.prototype.move = function () {
-  this.step({id: event_enum.Move});
+  this.step(event_type.Move());
   return this;
 }
 
 node.prototype.moveSecond = function (x, y) {
-  this.step({id: event_enum.MoveSecond, x:x, y:y});
+  this.step(event_type.MoveSecond(x, y));
   return this;
 }
 
 node.prototype.changeDir = function (d) {
-  this.step({id: event_enum.ChangeDir, d:d});
+  this.step(event_type.ChangeDir(d));
   return this;
 }
 

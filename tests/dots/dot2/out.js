@@ -5,6 +5,24 @@ var event_enum = Object.freeze({
   SpeedUp: 4
 });
 
+function event_type() {}
+
+event_type.Collide = function(vx, vy) {
+  return {id: event_enum.Collide, vx:vx, vy:vy}
+}
+
+event_type.Move = function() {
+  return {id: event_enum.Move}
+}
+
+event_type.SpeedDown = function() {
+  return {id: event_enum.SpeedDown}
+}
+
+event_type.SpeedUp = function() {
+  return {id: event_enum.SpeedUp}
+}
+
 function point() {
   this.x = undefined;
   this.y = undefined;
@@ -22,8 +40,8 @@ point.prototype.reset = function() {
 }
 
 point.prototype.step = function(e) {
-  var x_ = undefined;
-  var y_ = undefined;
+  var x = undefined;
+  var y = undefined;
   x = this.x;
   y = this.y;
   switch(e.id) {
@@ -39,11 +57,11 @@ point.prototype.step = function(e) {
       break;
     case event_enum.SpeedUp:
       
-      this.speed = addu(this.speed, 1);
+      this.speed = min(max_speed, addu(this.speed, 1));
       break;
     case event_enum.SpeedDown:
       
-      this.speed = subu(this.speed, 1);
+      this.speed = min(max_speed, subu(this.speed, 1));
       break;
   };
   this.x = x;
@@ -51,22 +69,22 @@ point.prototype.step = function(e) {
   return this;
 }
 point.prototype.collide = function (vx, vy) {
-  this.step({id: event_enum.Collide, vx:vx, vy:vy});
+  this.step(event_type.Collide(vx, vy));
   return this;
 }
 
-point.prototype.move = function (x, y) {
-  this.step({id: event_enum.Move, x:x, y:y});
+point.prototype.move = function () {
+  this.step(event_type.Move());
   return this;
 }
 
 point.prototype.speedDown = function () {
-  this.step({id: event_enum.SpeedDown});
+  this.step(event_type.SpeedDown());
   return this;
 }
 
 point.prototype.speedUp = function () {
-  this.step({id: event_enum.SpeedUp});
+  this.step(event_type.SpeedUp());
   return this;
 }
 
