@@ -1,4 +1,6 @@
 open Core.Std
+open Batteries
+open Printexc
 
 let command =
     Command.basic
@@ -6,11 +8,15 @@ let command =
         Command.Spec.(
             empty
             +> flag "-print-sol" no_arg~doc:" print sol code"
+            +> flag "-sol" no_arg~doc:" compile from sol code"
             +> anon ("filename" %: file)
         )
-    (fun print filename () ->
-        match print with
-            | _ -> Sol.Main.compile filename
+    (fun print sol filename _ ->
+        try match sol with
+            | false -> Normal.Compiler.compile print filename
+            | _ -> Sol.Compiler.compile print filename
+        with
+            | e -> print_string(to_string(e) ^ get_backtrace())
     )
 
 let _ =

@@ -1,1 +1,6 @@
-sol/Main
+sol/Compiler
+sol/Types
+sol/Js
+sol/Parser
+sol/Lexer
+sol/Print
