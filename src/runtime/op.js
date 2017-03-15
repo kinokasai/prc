@@ -77,3 +77,11 @@ function sin(a) {
 function tan(a) {
     return Math.tan(a);
 }
+
+function max(a, b) {
+    return Math.max(a, b);
+}
+
+function min(a, b) {
+    return Math.min(a, b);
+}

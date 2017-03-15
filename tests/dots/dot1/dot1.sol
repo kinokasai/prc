@@ -29,10 +29,10 @@ machine up =
     var st : atm in
     st = MoveUp;
     case (e) {
-      None: y = minus(y, speed) |
+      None: y = subu(y, speed) |
       Collide: st = MoveDown |
       Up: speed = plus(speed, 1) |
-      Down: speed = minus(speed, 1)
+      Down: speed = subu(speed, 1)
     }
 
 machine down =
@@ -45,6 +45,6 @@ machine down =
     case (e) {
       None: y = plus(y, speed) |
       Collide: st = MoveUp |
-      Up: speed = minus(speed, 1) |
+      Up: speed = subu(speed, 1) |
       Down: speed = plus(speed, 1)
     }

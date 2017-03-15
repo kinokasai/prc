@@ -9,7 +9,7 @@ machine point =
   step(k : key) returns (x : int, y : int) =
     var x : int, y : int in
     case(k) {
-      Left: state(speed) = minus(state(speed), 1) |
+      Left: state(speed) = subu(state(speed), 1) |
       Right: state(speed) = plus(state(speed), 1)
     };
     state(theta) = plus(state(theta), div(state(speed), 100));

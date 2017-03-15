@@ -17,8 +17,8 @@ machine point =
     case (e) {
       Collide(vx, vy): state(vx) = vx; state(vy) = vy |
       Move: (x, y) = move_point.step(state(x), state(y), state(vx), state(vy), state(speed)) |
-      SpeedUp: state(speed) = addu(state(speed), 1) |
-      SpeedDown: state(speed) = subu(state(speed), 1)
+      SpeedUp: state(speed) = min(max_speed, addu(state(speed), 1)) |
+      SpeedDown: state(speed) = min(max_speed, subu(state(speed), 1))
     };
     state(x) = x;
     state(y) = y
