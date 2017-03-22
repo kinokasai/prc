@@ -1,7 +1,8 @@
-type event = Collide | None | Up | Down
+type event = Collide | None | ArrowUp | ArrowDown
 type atm = MoveUp | MoveDown
 
 machine point =
+  interface event
   memory x : int, y : int, st: atm, speed : int
   instances up : up, down : down
   reset () =
@@ -31,8 +32,8 @@ machine up =
     case (e) {
       None: y = subu(y, speed) |
       Collide: st = MoveDown |
-      Up: speed = plus(speed, 1) |
-      Down: speed = subu(speed, 1)
+      ArrowUp: speed = addu(speed, 1) |
+      ArrowDown: speed = subu(speed, 1)
     }
 
 machine down =
@@ -43,8 +44,8 @@ machine down =
     var st : atm in
     st = MoveDown;
     case (e) {
-      None: y = plus(y, speed) |
+      None: y = addu(y, speed) |
       Collide: st = MoveUp |
-      Up: speed = subu(speed, 1) |
-      Down: speed = plus(speed, 1)
+      ArrowUp: speed = subu(speed, 1) |
+      ArrowDown: speed = addu(speed, 1)
     }

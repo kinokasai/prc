@@ -1,8 +1,8 @@
 var event_enum = Object.freeze({
   Collide: 1,
   None: 2,
-  Up: 3,
-  Down: 4
+  ArrowUp: 3,
+  ArrowDown: 4
 });
 
 function event_type() {}
@@ -19,15 +19,15 @@ event_type.None = function () {
   }
 }
 
-event_type.Up = function () {
+event_type.ArrowUp = function () {
   return {
-    id: event_enum.Up
+    id: event_enum.ArrowUp
   }
 }
 
-event_type.Down = function () {
+event_type.ArrowDown = function () {
   return {
-    id: event_enum.Down
+    id: event_enum.ArrowDown
   }
 }
 
@@ -66,6 +66,7 @@ point.prototype.reset = function () {
   this.y = 200;
   this.speed = 1;
   this.st = atm_enum.MoveUp;
+  return this;
 }
 
 point.prototype.step = function (e) {
@@ -73,8 +74,8 @@ point.prototype.step = function (e) {
   var y = undefined;
   var st = undefined;
   var speed = undefined;
-  [x] = this.x;
-  [st] = this.st;
+  x = this.x;
+  st = this.st;
   switch (st) {
     case atm_enum.MoveUp:
 
@@ -88,7 +89,26 @@ point.prototype.step = function (e) {
   this.st = st;
   this.y = y;
   this.speed = speed;
-  return [x, y];
+  return this;
+}
+point.prototype.collide = function () {
+  this.step(event_type.Collide());
+  return this;
+}
+
+point.prototype.none = function () {
+  this.step(event_type.None());
+  return this;
+}
+
+point.prototype.arrowUp = function () {
+  this.step(event_type.ArrowUp());
+  return this;
+}
+
+point.prototype.arrowDown = function () {
+  this.step(event_type.ArrowDown());
+  return this;
 }
 
 function up() {}
@@ -99,23 +119,23 @@ up.prototype.reset = function () {
 
 up.prototype.step = function (e, y, speed) {
   var st = undefined;
-  [st] = atm_enum.MoveUp;
-  switch (e) {
+  st = atm_enum.MoveUp;
+  switch (e.id) {
     case event_enum.None:
 
-      [y] = subu(y, speed);
+      y = subu(y, speed);
       break;
     case event_enum.Collide:
 
-      [st] = atm_enum.MoveDown;
+      st = atm_enum.MoveDown;
       break;
-    case event_enum.Up:
+    case event_enum.ArrowUp:
 
-      [speed] = plus(speed, 1);
+      speed = addu(speed, 1);
       break;
-    case event_enum.Down:
+    case event_enum.ArrowDown:
 
-      [speed] = subu(speed, 1);
+      speed = subu(speed, 1);
       break;
   };
   return [st, y, speed];
@@ -129,23 +149,23 @@ down.prototype.reset = function () {
 
 down.prototype.step = function (e, y, speed) {
   var st = undefined;
-  [st] = atm_enum.MoveDown;
-  switch (e) {
+  st = atm_enum.MoveDown;
+  switch (e.id) {
     case event_enum.None:
 
-      [y] = plus(y, speed);
+      y = addu(y, speed);
       break;
     case event_enum.Collide:
 
-      [st] = atm_enum.MoveUp;
+      st = atm_enum.MoveUp;
       break;
-    case event_enum.Up:
+    case event_enum.ArrowUp:
 
-      [speed] = subu(speed, 1);
+      speed = subu(speed, 1);
       break;
-    case event_enum.Down:
+    case event_enum.ArrowDown:
 
-      [speed] = plus(speed, 1);
+      speed = addu(speed, 1);
       break;
   };
   return [st, y, speed];

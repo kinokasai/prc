@@ -1,16 +1,24 @@
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
+function draw_rect(x, y, w, h) {
+    ctx.beginPath();
+    ctx.rect(x, y, w, h);
+    ctx.fillStyle = "#0095DD";
+    ctx.fill();
+    ctx.closePath();
+}
+
 document.addEventListener("keypress", keyPressHandler, false);
 
 function keyPressHandler(e) {
     dir = e.keyCode;
     switch (dir) {
         case 38:
-            point_node.step(event_enum.Up);
+            point_node.arrowUp();
             break;
         case 40:
-            point_node.step(event_enum.Down);
+            point_node.arrowDown();
             break;
     }
 }
@@ -20,16 +28,16 @@ var point_node = new point();
 point_node.reset();
 
 function collide() {
-    if (y < 0 || y > canvas.height) {
-        point_node.step(event_enum.Collide)
+    if (point_node.y < 0 || point_node.y > canvas.height) {
+        point_node.collide();
     }
 }
 
 function draw() {
     collide()
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    [x, y] = point_node.step(event_enum.None);
-    draw_rect(x, y, 10, 10);
+    point_node.none();
+    draw_rect(point_node.x, point_node.y, 10, 10);
     requestAnimationFrame(draw);
 }
 

@@ -10,9 +10,9 @@ machine point =
     var x : int, y : int in
     case(k) {
       Left: state(speed) = subu(state(speed), 1) |
-      Right: state(speed) = plus(state(speed), 1)
+      Right: state(speed) = addu(state(speed), 1)
     };
-    state(theta) = plus(state(theta), div(state(speed), 100));
-    x = plus(times(cos(state(theta)), 80), 200);
-    y = plus(times(sin(state(theta)), 80), 200)
+    state(theta) = addu(state(theta), div(state(speed), 100));
+    x = addu(times(cos(state(theta)), 80), 200);
+    y = addu(times(sin(state(theta)), 80), 200)
 
