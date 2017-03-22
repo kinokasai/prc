@@ -2,13 +2,13 @@ open Core.Std
 open Batteries
 
 open Lexer
-open Types
+open Ast
 open Printexc
 open Js
 
 let lexsub start end_ str lexeme =
     let head = String.sub str 0 start and
-        tail = String.sub str end_ (end_) and
+        tail = String.sub str end_ (200) and
         red = "\027[32m" and
         endc = "\027[0m" in
     head ^ red ^ lexeme ^ endc ^ tail

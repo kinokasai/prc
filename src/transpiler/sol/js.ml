@@ -1,5 +1,5 @@
 open Shared.Types
-open Types
+open Ast
 open Printf
 open Helpers
 
@@ -34,6 +34,11 @@ let js_of_constr ty_id c_id = match c_id with
     | "False" -> "false"
     | _ -> ty_id ^ "_enum." ^ c_id
 
+let js_of_id_list = function
+  | [] -> raise (Failure "empty id list")
+  | [x] -> x
+  | x::xs -> "[" ^ ((x::xs) |> concat ", ") ^ "]"
+
 let id_of_machdec md =
     md.mach_id
 
@@ -44,17 +49,20 @@ let js_of_machdec md =
   "this." ^ md.mach_id ^ " = new " ^ md.type_id ^ "();"
 
 let rec js_of_val = function
-  | Constr(id) -> Smap.find id !tidmap
   | Litteral(lit) -> lit
-  | Op(id, vll) -> id ^ wrap (List.map js_of_val vll |> concat ", ")
-  | State(id) -> "this." ^ id
-  | Step(id, vll) -> "this." ^ id ^
-            ".step(" ^ (List.map js_of_val vll |> concat ", ") ^ ")"
-  | Variable(id) -> id
+  | Constr(cid) -> Smap.find cid !tidmap
 
 let rec js_of_exp = function
-    | VarAssign(idl, vl) -> "[" ^ (idl |> concat ", ") ^ "] = " ^ js_of_val vl
-    | StateAssign(id, vl) -> "this." ^ id ^ " = " ^ js_of_val vl
+  | Op(id, expl) -> id ^ wrap (List.map js_of_exp expl |> concat ", ")
+  | State(id) -> "this." ^ id
+  | Step(id, expl) -> "this." ^ id ^
+            ".step(" ^ (List.map js_of_exp expl |> concat ", ") ^ ")"
+  | Variable(id) -> id
+  | Value(vl) -> js_of_val vl
+
+let rec js_of_inst = function
+    | VarAssign(idl, vl) -> js_of_id_list idl ^ " = " ^ js_of_exp vl
+    | StateAssign(id, vl) -> "this." ^ id ^ " = " ^ js_of_exp vl
     | Skip -> ""
     | Reset(id) -> "this." ^ id ^ ".reset()"
     | Case(id, bl) ->
@@ -68,20 +76,20 @@ let rec js_of_exp = function
       a ^ b ^ c ^ d
 
 and js_of_branch switch_id = function
-  | Branch(constr, exp) ->
+  | Branch(constr, inst) ->
     (*let full_id = Smap.find id !tidmap in*)
     let full_id = Smap.find constr.id !tidmap in
     let case = "case " ^ full_id ^ ":" ^ incendl() in
     let f = (fun vid -> "var " ^ vid ^ " = " ^ switch_id ^ "." ^ vid ^ ";") in
     let constr_vars = List.map f constr.params |> concat (iendl()) in
-    let exp = iendl() ^ js_of_seqexp exp ^ iendl() in
+    let inst = iendl() ^ js_of_seqinst inst ^ iendl() in
     let break = "break;" in
     let d = decindent() in
-    case ^ constr_vars ^ exp ^ break ^ d
+    case ^ constr_vars ^ inst ^ break ^ d
             
 
-and js_of_seqexp sexp =
-    let a = (List.map js_of_exp sexp |> concat (";" ^ iendl())) in
+and js_of_seqinst sinst =
+    let a = (List.map js_of_inst sinst |> concat (";" ^ iendl())) in
     let b = if empty a then "" else ";" in
     a ^ b
 
@@ -93,14 +101,14 @@ let js_of_vardecs vds =
         |> concat (iendl())
 
 let js_of_step interface = function
-  | {avd; rvd; vd; sexp} ->
+  | {avd; rvd; vd; instl} ->
     let _ = if interface then interface_event_id := Some (List.hd avd).var_id in
     let a = "step = function(" ^ js_of_vardecs_id avd ^ ") {" ^ incendl() in
     let b = js_of_vardecs vd in
     let b' = if String.length b == 0 then "" else iendl() in
-    let c = js_of_seqexp sexp ^ iendl() in
+    let c = js_of_seqinst instl ^ iendl() in
     let d = if interface then "return this;"
-                         else "return [" ^ js_of_vardecs_id rvd ^ "];" in
+                         else "return " ^ js_of_id_list (List.map id_of_vardec rvd) ^ ";" in
     let e = decendl() in
     a ^ b ^ b' ^ c ^ d ^ e
 
@@ -160,8 +168,9 @@ and js_of_reset rst instances =
     let code = (fun inst -> "this." ^ (id_of_machdec inst) ^ ".reset();") in
     let a = List.map code instances |> concat (iendl()) in
     let a' = if empty a then "" else iendl() in
-    let b = js_of_seqexp rst in
-    a ^ a' ^ b
+    let b = js_of_seqinst rst ^ iendl() in
+    let c = "return this;" in
+    a ^ a' ^ b ^ c
 
 let js_of_type_dec (type_dec: Shared.Types.type_dec) =
     let a = "var " ^ type_dec.id ^ "_enum = Object.freeze({" ^ incendl() in

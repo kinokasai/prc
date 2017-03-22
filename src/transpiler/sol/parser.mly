@@ -1,5 +1,5 @@
 %{
-  open Types
+  open Ast
   open Shared.Types
 %}
 
@@ -11,7 +11,7 @@
 %token <string> CONSTR
 %token <string> ID LITTERAL
 
-%start <Types.sol_ast> init
+%start <Ast.sol_ast> init
 %%
 
 init:
@@ -35,7 +35,7 @@ machine:
     | MACHINE i = ident EQUALS
         interface = option(INTERFACE i = ID {i})
         MEMORY m = memory INSTANCES inst = instances
-        RESET LPAREN RPAREN EQUALS e = seq_exp
+        RESET LPAREN RPAREN EQUALS e = seq_inst
         STEP se = step_dec
         { { id = i; memory = m; instances = inst; interface = interface; reset = e; step = se;} }
 
@@ -56,17 +56,17 @@ var_decs:
 
 step_dec:
     | LPAREN avd = var_decs RPAREN RETURNS LPAREN rvd = var_decs RPAREN
-        EQUALS VAR vd = var_decs IN e = seq_exp
-        {{ avd = avd; rvd = rvd; vd = vd; sexp = e; }}
+        EQUALS VAR vd = var_decs IN instl = seq_inst
+        {{ avd = avd; rvd = rvd; vd = vd; instl; }}
 
-seq_exp:
-    | seq_exp = separated_list(SEMICOLON, exp) { seq_exp }
+seq_inst:
+    | seq_inst = separated_list(SEMICOLON, inst) { seq_inst }
 
-exp:
+inst:
     | SKIP { Skip }
-    | id = ID EQUALS vl = value { VarAssign([id], vl) }
-    | LPAREN idl = separated_list(COMMA, ID) RPAREN EQUALS vl = value { VarAssign(idl, vl) }
-    | STATE LPAREN id = ID RPAREN EQUALS vl = value { StateAssign(id, vl) }
+    | id = ID EQUALS vl = exp { VarAssign([id], vl) }
+    | LPAREN idl = separated_list(COMMA, ID) RPAREN EQUALS vl = exp { VarAssign(idl, vl) }
+    | STATE LPAREN id = ID RPAREN EQUALS vl = exp { StateAssign(id, vl) }
     | id = ID DOT RESET { Reset(id) }
     | CASE LPAREN id = ID RPAREN LBRACE bl = branch_list RBRACE
         { Case(id, bl) }
@@ -76,25 +76,29 @@ branch_list:
     | bl = separated_list(PIPE, branch) { bl }
 
 branch:
-    | constr = constr COLON e = seq_exp { Branch(constr, e) }
+    | constr = constr COLON e = seq_inst{ Branch(constr, e) }
 
+/* This is definitely weird. Maybe only allow only empty constructors as values? */
 constr:
     | id = CONSTR LPAREN idl = separated_list(COMMA, ID) RPAREN {{id; params=idl}}
     | id = CONSTR {{id; params=[]}}
 
-val_list:
-    | vl = separated_list(COMMA, value) { vl }
+exp_list:
+    | vl = separated_list(COMMA, exp) { vl }
 
-value:
+exp:
     | st = state { st }
-    | id = ID DOT STEP LPAREN vll = val_list RPAREN { Step(id, vll) }
-    | id = ID LPAREN vl = val_list RPAREN { Op(id, vl) }
-    | lit = LITTERAL { Litteral(lit) }
+    | id = ID DOT STEP LPAREN expl = exp_list RPAREN { Step(id, expl) }
+    | id = ID LPAREN expl = exp_list RPAREN { Op(id, expl) }
     | id = ID { Variable(id) }
-    | cid = CONSTR { Constr(cid) }
+    | vl = value {Value(vl)}
 
 state:
     | STATE LPAREN id = ID RPAREN { State(id) }
+
+value:
+    | cid = CONSTR { Constr(cid)}
+    | lit = LITTERAL { Litteral(lit)}
 
 %inline ident:
     | s = ID { s }

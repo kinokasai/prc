@@ -1,5 +1,5 @@
 open Shared.Types
-open Types
+open Ast
 open Printf
 let concat = String.concat;;
 
@@ -29,24 +29,24 @@ and string_of_instances inst =
 	"instances " ^ (List.map string_of_machdec inst |> concat ", ")
 
 and string_of_reset reset_exp =
-	"reset () = " ^ incendl() ^ string_of_seqexp reset_exp
+	"reset () = " ^ incendl() ^ string_of_instl reset_exp
 
 and string_of_step_dec = function
-	| {avd; rvd; vd; sexp} ->
+	| {avd; rvd; vd; instl} ->
 			"step(" ^ (string_of_vardecs avd) ^ ") returns ("
 			^ (string_of_vardecs rvd) ^ ") = " ^ iendl()
 			^ "var " ^ (string_of_vardecs vd) ^ " in " ^ iendl()
-			^ string_of_seqexp sexp ^ (incindent(); incindent(); "\n")
+			^ string_of_instl instl ^ (incindent(); incindent(); "\n")
 
 and string_of_vardecs vds =
 	List.map string_of_vardec vds |> concat ", "
 
-and string_of_seqexp exps =
-	List.map string_of_exp exps |> concat (";" ^ iendl())
+and string_of_instl instl =
+	List.map string_of_inst instl |> concat (";" ^ iendl())
 
-and string_of_exp = function
-	| VarAssign(idl, vl) -> string_of_tuple idl ^ " = " ^ string_of_val vl
-	| StateAssign(id, vl) -> "state(" ^ id ^ ") = " ^ string_of_val vl
+and string_of_inst = function
+	| VarAssign(idl, exp) -> string_of_tuple idl ^ " = " ^ string_of_exp exp
+	| StateAssign(id, exp) -> "state(" ^ id ^ ") = " ^ string_of_exp exp
 	| Skip -> "skip"
 	| Reset(id) -> id ^ ".reset()"
 	| Case(id, bl) ->
@@ -57,18 +57,22 @@ and string_of_exp = function
 			a ^ b ^ c ^ d
 
 and string_of_branch = function
-	| Branch(constr, exp) -> string_of_constr constr ^ ": " ^ string_of_seqexp exp
+	| Branch(constr, inst) -> string_of_constr constr ^ ": " ^ string_of_instl inst
 
 and string_of_constr constr =
-	constr.id ^ "(" ^ (constr.params |> concat ", ") ^ ")"
+	let paren = if BatList.is_empty constr.params then (fun str -> str) else wrap in
+	constr.id ^ paren (constr.params |> concat ", ")
 
 and string_of_val = function
   | Constr(id) -> id
   | Litteral(lit) -> lit
-  | Op(id, vll) -> id ^ "(" ^ (List.map string_of_val vll |> concat ", ") ^ ")"
+
+and string_of_exp = function
+  | Op(id, expl) -> id ^ "(" ^ (List.map string_of_exp expl |> concat ", ") ^ ")"
   | State(id) -> "state(" ^ id ^ ")"
-  | Step(id, vll) -> id ^ ".step(" ^ (List.map string_of_val vll |> concat ", ") ^ ")"
+  | Step(id, expl) -> id ^ ".step(" ^ (List.map string_of_exp expl |> concat ", ") ^ ")"
   | Variable(id) -> id
+	| Value(vl) -> string_of_val vl
 
 and string_of_tuple = function
 	| x::[] -> x
