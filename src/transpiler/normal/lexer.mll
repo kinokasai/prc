@@ -22,6 +22,7 @@ rule token = parse
     | '{' { LBRACE }
     | '}' { RBRACE }
     | '=' { EQUALS }
+    | '_' { UNDERSCORE }
     | "type" { TYPE }
     | "node" { NODE }
     | "->" { RETURNS }
@@ -29,6 +30,8 @@ rule token = parse
     | "when" { WHEN }
     | "merge" { MERGE }
     | "fby" { FBY }
+    | "every" { EVERY }
+    | "interface" { INTERFACE }
     | type_const as constr { CONSTR constr }
     | float as num { LITTERAL num}
     | ident as id { ID id }

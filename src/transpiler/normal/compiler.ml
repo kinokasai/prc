@@ -2,7 +2,7 @@ open Lexer
 open Parser
 open Batteries
 open Printexc
-open Types
+open Sap_ast
 open Sol_of_normal
 (*
 let lexsub pos str lexeme =

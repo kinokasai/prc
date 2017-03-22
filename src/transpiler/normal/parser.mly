@@ -1,40 +1,61 @@
 %{
   open Shared.Types
-  open Types
+  open Sap_ast
 %}
 
-%token SEMICOLON COLON EQUALS COMMA DOT PIPE
+%token SEMICOLON COLON EQUALS COMMA DOT PIPE UNDERSCORE
 %token LPAREN RPAREN LBRACE RBRACE
-%token TYPE NODE RETURNS FBY WITH WHEN MERGE
+%token TYPE NODE RETURNS FBY WITH WHEN MERGE EVERY INTERFACE
 %token EOF
 %token <string> LITTERAL CONSTR
 %token <string> ID
 
-%start <Types.ast> init
+%start <Sap_ast.ast> init
 %%
 
 init:
   | tdl = type_dec_list nl = node_list EOF {{type_dec_list = tdl; node_list = nl}}
 
-const:
-  | lit = LITTERAL { Litteral(lit) }
+rhs:
+  | cexp = cexp { CExp(cexp) }
+  | pre = value FBY next = exp { Fby(pre, next)}
+  | id = ID LPAREN expl = exp_list RPAREN EVERY UNDERSCORE { NodeCall(id, expl)}
 
-exp:
-  | value = value { Value(value) }
-  | pre = const FBY next = value { Fby(pre, next)}
+cexp:
+  | exp = exp { Exp(exp) }
+  | MERGE id = ID fl = flow_list { Merge(id, fl)}
+
+constr:
+    | id = CONSTR LPAREN idl = separated_list(COMMA, ID) RPAREN {{id; params=idl}}
+    | id = CONSTR {{id; params=[]}}
 
 eq_list:
   | eql = list(eq = eq { eq }) { eql }
 
 eq:
-  | lhs = ID EQUALS rhs = exp {{lhs; rhs}}
+  | lhs = ID EQUALS rhs = rhs {{lhs; rhs}}
+
+exp_list:
+  | expl = separated_list(COMMA, exp = exp { exp }) { expl }
+
+exp:
+  | id = ID LPAREN expl = exp_list RPAREN {Op(id, expl)}
+  | id = ID { Variable(id)}
+  | vl = value { Value(vl) }
+
+flow_list:
+  | fll = list(fl = flow { fl }) { fll }
+
+flow:
+  | LPAREN constr = constr RETURNS cexp = cexp RPAREN { {constr; cexp} }
 
 node_list:
   | nl = list(n = node {n}) { nl }
 
 node:
-  | NODE id = ID LPAREN in_vdl = var_decs RPAREN RETURNS LPAREN out_vdl = var_decs RPAREN WITH
-    eql = eq_list { {id; in_vdl; out_vdl; step_vdl = []; eql} }
+  | interface = boption(INTERFACE) NODE id = ID LPAREN in_vdl = var_decs RPAREN 
+    RETURNS LPAREN out_vdl = var_decs RPAREN WITH
+    eql = eq_list { {interface; id; in_vdl; out_vdl; step_vdl = []; eql} }
 
 type_dec_list:
     | tdl = list(type_dec) { tdl }
@@ -50,9 +71,8 @@ value_list:
   | vll = separated_list(COMMA, value) { vll }
 
 value:
-  | const = const { Const(const) }
-  | id = ID LPAREN vll = value_list RPAREN {Op(id, vll)}
-  | id = ID { Variable(id)}
+  | constr = constr {Constr(constr)}
+  | lit = LITTERAL { Litteral(lit) }
 
 var_decs:
   | vdl = separated_list(COMMA, var_dec) { vdl }
