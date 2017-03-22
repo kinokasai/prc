@@ -1,0 +1,13 @@
+type event = Left | Right | Move
+
+interface node point(e : event) -> (x: int, y: int) with
+  t2 = subu(speed, 1)
+  t3 = addu(speed, 1)
+  t5 = merge e (Left -> t2)
+               (Right -> t3)
+               (Move -> speed)
+  speed = 1 fby t5
+  t4 = addu(theta, div(speed, 100))
+  theta = 0 fby t4
+  x = 100 fby addu(mult(cos(theta), 80), 200)
+  y = 250 fby addu(mult(sin(theta), 80), 200)

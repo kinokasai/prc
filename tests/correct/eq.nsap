@@ -3,9 +3,11 @@ type a = Int(x : int)
 
 node count(i : int) -> (o : int) with
   x = 3
-  y = 2 fby one()
-  o = plus(x, 2)
+  y = 2 fby plus(y, 2)
+  o = one() every _
   e = empty()
+  x = merge c (True -> 2)
+              (False -> 3)
 
 node one() -> (i : int) with
   i = 1
