@@ -1,0 +1,34 @@
+\begin{figure}[h]
+\begin{grammar}
+<dec> ::= \verb|machine| $f$ = \\
+(\verb|interface| $t$)? \\
+\verb|memory| <var_decs> \\
+\verb|instances| <mach_dec> \\
+\verb|reset|() = <inst> \\
+\verb|step|(<var_decs>) \\
+\verb|returns| (<var_decs>) = \\
+\verb|var| <var_decs> \verb|in| <inst>
+
+<inst> ::= $x$ = <exp>
+\alt \verb|state(|$x$\verb|)| = <exp>
+\alt <inst> ; <inst>
+\alt \verb|skip|
+\alt $o$\verb|.reset|
+\alt ($x$, ..., $x$) = $o$\verb|.step|(<exp>, ..., <exp>)
+\alt \verb|case|($x$) \{ <C>: <inst> | ... | <C> : <inst>\}
+
+<exp> ::= $x$
+\alt <value>
+\alt \verb|state|($x$)
+\alt $op$(<exp>, ..., <exp>)
+
+<value> ::= $C$ \alt $i$
+
+<mach_dec> ::= $o$ : $f$, ..., $o$ : $f$
+
+<var_decs> ::= $x$ : $t$, ..., $x$ : $t$
+
+\end{grammar}
+\hrulefill
+\caption{Simple Object Language Grammar}
+\end{figure}

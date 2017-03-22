@@ -1,3 +1,8 @@
+---
+header-includes:
+  - \usepackage{syntax}
+  - \usepackage{amsmath}
+---
 ## SOL
 
 As our goal is to compile down to a more imperative language,
@@ -6,9 +11,13 @@ Please keep in mind that we are only interested in the capability
 to encapsulate a piece of memory managed exclusively by the methods
 of the class.
 
-_insert grammar.tex_
+\include sol/grammar.tex
 
 ### ADT
+
+\include sol/adt.md
+
+### Interface
 
 Our model concentrates on the implementation of an `interface` node -
 or machine - that will be used by the game engine's javascript implementation.
@@ -16,7 +25,7 @@ Such a node will typically take an unique parameter, in the form of an `event` v
 
 Such an `event` will leverage the power of `Algebraic Data Types` to describe the event.
 
-```ocaml
+```haskell
 type event = Move | ChangeDir(x: int, y: int)
 ```
 
@@ -47,7 +56,7 @@ Each variant then has its specific properties added in its object litteral.
 
 ###Interface
 
-```
+```haskell
 machine main =
   interface event
   memory

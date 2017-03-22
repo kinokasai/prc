@@ -1,0 +1,18 @@
+\begin{figure}[t]
+\begin{align*}
+TC_{(id)}(C_n(i_1 : t_1, ..., i_n : t_n)) \qquad &= \hspace{.1cm} id.C_n = \texttt{function} (i_1, ..., i_n)\hspace{.1cm}\{\\
+&\hspace{1cm} \texttt{return \{id}:id, i_1:i_1, ..., i_n : i_n\};\\
+&\hspace{.5cm}\} \\
+\\
+TT(\texttt{type } id = C_1| ... | C_n) \qquad &= \hspace{.1cm}\texttt{var } id \texttt{\_enum} = \{ \\
+ &\hspace{1cm}C_1: 1, \\
+ &\hspace{1cm}..., \\
+ &\hspace{1cm}C_n: n \\
+&\hspace{.5cm}\}; \\
+&\hspace{.5cm}TC_{(id)}(C_1); \\
+&\hspace{.5cm} ...; \\
+&\hspace{.5cm}TC_{(id)}(C_n); \\
+\end{align*}
+\hrulefill
+\caption{Type Translation Function}
+\end{figure}

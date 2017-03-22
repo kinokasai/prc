@@ -20,7 +20,13 @@ run:
 
 clean:
 	(cd src/transpiler; ocamlbuild -clean)
-	rm -f sdt runtime.js
+	rm -f sdt runtime.js doc/full_report.md doc/report.pdf
 
 check: all
 	bash tests/test.sh
+
+report:
+	(cd doc;\
+	bash include_md.sh report.md > full_report.md;\
+	pandoc full_report.md -o report.pdf;\
+	echo "Done.")

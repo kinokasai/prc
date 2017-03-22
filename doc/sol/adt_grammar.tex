@@ -1,0 +1,15 @@
+\begin{figure}
+\begin{grammar}
+<type_dec> ::= \verb|type| $id$ `=' <type_constr>
+
+<type_constr> ::= $constr\_id$
+\alt $constr\_id$(<param>)
+\alt <type_constr> `|' <type_constr>
+
+<param> ::= $id$ `:' $type\_id$
+\alt <param> `,' <param>
+
+\end{grammar}
+\hrulefill
+\caption{Algebraic Data Type Grammar}
+\end{figure}
