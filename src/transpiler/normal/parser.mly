@@ -1,6 +1,6 @@
 %{
   open Shared.Types
-  open Sap_ast
+  open Nm_ast
 %}
 
 %token SEMICOLON COLON EQUALS COMMA DOT PIPE UNDERSCORE
@@ -10,7 +10,7 @@
 %token <string> LITTERAL CONSTR
 %token <string> ID
 
-%start <Sap_ast.ast> init
+%start <Nm_ast.ast> init
 %%
 
 init:
@@ -30,10 +30,11 @@ constr:
     | id = CONSTR {{id; params=[]}}
 
 eq_list:
-  | eql = list(eq = eq { eq }) { eql }
+  | eql = separated_list(SEMICOLON, eq = eq { eq }) { eql }
 
 eq:
-  | lhs = ID EQUALS rhs = rhs {{lhs; rhs}}
+  | lhs = ID EQUALS rhs = rhs { {lhs = [lhs]; rhs} }
+  | LPAREN lhs = separated_list(COMMA, ID) RPAREN EQUALS rhs = rhs {{lhs; rhs}}
 
 exp_list:
   | expl = separated_list(COMMA, exp = exp { exp }) { expl }
@@ -42,6 +43,7 @@ exp:
   | id = ID LPAREN expl = exp_list RPAREN {Op(id, expl)}
   | id = ID { Variable(id)}
   | vl = value { Value(vl) }
+  | exp = exp WHEN constr { When(exp) }
 
 flow_list:
   | fll = list(fl = flow { fl }) { fll }
