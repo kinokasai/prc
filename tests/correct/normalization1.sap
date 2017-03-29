@@ -1,0 +1,6 @@
+type dummy = Empty(x: int, y: int)
+
+interface node counting(tick: bool, top: bool) -> (o: int) with
+  (a, b, c) = (1, 2, 3);
+  (a, b) = op(1) every _;
+  d = add(3, 0 fby 5)

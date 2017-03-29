@@ -1,16 +1,25 @@
-open BatList
 open Sap_ast
+open BatList
 
 exception ExpectedSingle
 exception ExpectedPattern
 
+
+let gen, reset =
+    let id = ref 0 in
+    (fun () -> incr id; "t" ^ string_of_int !id),
+    (fun () -> id := 0);;
+
+let fbyl = ref [];;
+
 let rec demux_exp lhsl exp =
   match exp with
     | ExpPattern(expl) -> demux_pattern lhsl expl
+    | NodeCall(id, expl) -> [{lhs = Pattern(lhsl); rhs = NodeCall(id, expl)}]
     | _ -> raise ExpectedPattern
 
 and demux_pattern lhsl expl =
-  let eq_fun = (fun lhs exp -> {lhs; rhs = exp}) in
+  let eq_fun = (fun lhs exp -> {lhs; rhs = nm_of_exp exp}) in
     map2 eq_fun lhsl expl
 
 and nm_of_ast ast =
@@ -21,6 +30,7 @@ and nm_of_ast ast =
 and nm_of_eql eql =
   eql |> List.map nm_of_eq
       |> List.flatten
+      |> append !fbyl
 
 and nm_of_eq eq =
   match eq.lhs with
@@ -30,6 +40,12 @@ and nm_of_eq eq =
 and nm_of_exp exp =
   match exp with
     | ExpPattern(_) -> raise ExpectedSingle
+    | Fby(vl, exp) ->
+      let id = gen() in
+      let eq = {lhs = Id(id); rhs = Fby(vl, exp)} in
+      let _ = fbyl := eq::!fbyl in
+        Variable(id)
+    | Op(id, expl) -> Op(id, expl |> map nm_of_exp)
     | _ -> exp
 
 and nm_of_node node =

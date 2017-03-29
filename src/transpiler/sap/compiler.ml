@@ -3,6 +3,7 @@ open Parser
 open Batteries
 open Normal_of_sap
 open Printexc
+open Print_sap
 open Sap_ast
 (*
 let lexsub pos str lexeme =
@@ -25,13 +26,13 @@ let lexsub start end_ str lexeme =
 
 let compile print filename =
   let iter = if print then Sol.Print.string_of_ast else Sol.Js.js_of_ast in
+  let iter = print_ast in
   let input = File.open_in filename in
   let filebuf = Lexing.from_channel input in
   try
     let ast = Parser.init Lexer.token filebuf in
     let nm_ast = nm_of_ast ast in
-    (*print_string (iter sol_ast)*)
-    print_string "Parsed."
+    print_string (iter nm_ast)
   with
     | Parser.Error ->
         (Printf.eprintf "At offset %d: syntax error on token: \"%s\"!\n%s\n"
