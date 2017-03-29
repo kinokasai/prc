@@ -36,7 +36,7 @@ function collide() {
 function draw() {
     collide()
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    point_node.none();
+    point_node.move();
     draw_rect(point_node.x, point_node.y, 10, 10);
     requestAnimationFrame(draw);
 }

@@ -7,8 +7,8 @@ var event_enum = Object.freeze({
 
 function event_type() {}
 
-event_type.Collide = function(vx, vy) {
-  return {id: event_enum.Collide, vx:vx, vy:vy}
+event_type.Collide = function(vx_, vy_) {
+  return {id: event_enum.Collide, vx_:vx_, vy_:vy_}
 }
 
 event_type.Move = function() {
@@ -24,52 +24,80 @@ event_type.SpeedUp = function() {
 }
 
 function point() {
-  this.x = undefined;
-  this.y = undefined;
   this.speed = undefined;
-  this.move_point = new move();
+  this.y = undefined;
+  this.x = undefined;
+  this.vy = undefined;
+  this.vx = undefined;
 }
 
 point.prototype.reset = function() {
-  this.move_point.reset();
-  this.x = 400;
-  this.y = 200;
-  this.vx = 1;
-  this.vy = 1;
   this.speed = 2;
+  this.y = 200;
+  this.x = 400;
+  this.vy = 1;
+  this.vx = 1;
+  return this;
 }
 
 point.prototype.step = function(e) {
-  var x = undefined;
-  var y = undefined;
-  x = this.x;
-  y = this.y;
+  var max_speed = undefined;
+  var t1 = undefined;
+  var t2 = undefined;
+  var t3 = undefined;
+  var t4 = undefined;
+  var t5 = undefined;
+  max_speed = 20;
+  t1 = this.vx;
+  t2 = this.vy;
   switch(e.id) {
     case event_enum.Collide:
-      var vx = e.vx;
-      var vy = e.vy;
-      this.vx = vx;
-      this.vy = vy;
+      var vx_ = e.vx_;
+      var vy_ = e.vy_;
+      t1 = vx_;
       break;
+  };
+  switch(e.id) {
+    case event_enum.Collide:
+      var vx_ = e.vx_;
+      var vy_ = e.vy_;
+      t2 = vy_;
+      break;
+  };
+  this.vx = t1;
+  this.vy = t2;
+  t3 = this.x;
+  t4 = this.y;
+  switch(e.id) {
     case event_enum.Move:
       
-      [x, y] = this.move_point.step(this.x, this.y, this.vx, this.vy, this.speed);
+      t3 = addu(this.x, mult(this.vx, this.speed));
       break;
+  };
+  switch(e.id) {
+    case event_enum.Move:
+      
+      t4 = addu(this.y, mult(this.vy, this.speed));
+      break;
+  };
+  this.x = t3;
+  this.y = t4;
+  t5 = this.speed;
+  switch(e.id) {
     case event_enum.SpeedUp:
       
-      this.speed = min(max_speed, addu(this.speed, 1));
+      t5 = min(max_speed, addu(this.speed, 1));
       break;
     case event_enum.SpeedDown:
       
-      this.speed = min(max_speed, subu(this.speed, 1));
+      t5 = min(max_speed, subu(this.speed, 1));
       break;
   };
-  this.x = x;
-  this.y = y;
+  this.speed = t5;
   return this;
 }
-point.prototype.collide = function (vx, vy) {
-  this.step(event_type.Collide(vx, vy));
+point.prototype.collide = function (vx_, vy_) {
+  this.step(event_type.Collide(vx_, vy_));
   return this;
 }
 
@@ -88,16 +116,3 @@ point.prototype.speedUp = function () {
   return this;
 }
 
-  function move() {
-  }
-  
-  move.prototype.reset = function() {
-    
-  }
-  
-  move.prototype.step = function(x, y, vx, vy, speed) {
-    x = addu(x, mult(vx, speed));
-    y = addu(y, mult(vy, speed));
-    return [x, y];
-  }
-  

@@ -27,8 +27,7 @@ points[1].vx = -1;
 points[1].collide(-1, 1);
 
 function make_point() {
-    point_ = new point()
-    point_.reset();
+    point_ = new point().reset();
     return point_;
 }
 

@@ -1,4 +1,4 @@
-type event = Collide | None | ArrowUp | ArrowDown
+type event = Collide | Move | ArrowUp | ArrowDown
 type atm = MoveUp | MoveDown
 
 machine point =
@@ -30,7 +30,7 @@ machine up =
     var st : atm in
     st = MoveUp;
     case (e) {
-      None: y = subu(y, speed) |
+      Move: y = subu(y, speed) |
       Collide: st = MoveDown |
       ArrowUp: speed = addu(speed, 1) |
       ArrowDown: speed = subu(speed, 1)
@@ -44,7 +44,7 @@ machine down =
     var st : atm in
     st = MoveDown;
     case (e) {
-      None: y = addu(y, speed) |
+      Move: y = addu(y, speed) |
       Collide: st = MoveUp |
       ArrowUp: speed = subu(speed, 1) |
       ArrowDown: speed = addu(speed, 1)

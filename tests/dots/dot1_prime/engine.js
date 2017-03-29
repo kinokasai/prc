@@ -15,33 +15,22 @@ function keyPressHandler(e) {
     //}
 }
 
-var [x, y] = [undefined, undefined];
-var point_node = new point();
-point_node.reset();
-
-var vx = 1;
-var vy = 1;
+var node = new point().reset();
 
 function collide() {
-    bump = false;
-    if (y < 0 || y + 10 > canvas.height) {
-        vy = -vy;
-        bump = true;
+    if (node.y < 0 || node.y + 10 > canvas.height) {
+        node.collide(node.vx, -node.vy)
     }
-    if (x < 0 || x + 10 > canvas.width) {
-        vx = -vx;
-        bump = true;
-    }
-    if (bump) {
-        point_node.step(event_enum.Collide, vx, vy);
+    if (node.x < 0 || node.x + 10 > canvas.width) {
+        node.collide(-node.vx, node.vy);
     }
 }
 
 function draw() {
     collide()
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    [x, y] = point_node.step(event_enum.None, undefined, undefined);
-    draw_rect(x, y, 10, 10);
+    node.move();
+    draw_rect(node.x, node.y, 10, 10);
     requestAnimationFrame(draw);
 }
 

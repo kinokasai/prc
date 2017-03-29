@@ -1,4 +1,4 @@
-type event = Collide | None
+type event = Collide | Move
 
 machine point =
   memory x : int, y : int, speed : int

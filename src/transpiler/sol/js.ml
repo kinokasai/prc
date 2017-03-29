@@ -77,7 +77,7 @@ let rec js_of_inst = function
 
 and js_of_branch switch_id = function
   | Branch(constr, inst) ->
-    (*let full_id = Smap.find id !tidmap in*)
+    (*let _ = print_string (constr.id ^ "\n") in*)
     let full_id = Smap.find constr.id !tidmap in
     let case = "case " ^ full_id ^ ":" ^ incendl() in
     let f = (fun vid -> "var " ^ vid ^ " = " ^ switch_id ^ "." ^ vid ^ ";") in

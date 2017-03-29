@@ -27,7 +27,7 @@ type rhs =
 
 type equation = 
   {
-    lhs: id;
+    lhs: id list;
     rhs: rhs;
   }
 

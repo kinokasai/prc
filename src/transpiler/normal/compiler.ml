@@ -2,7 +2,7 @@ open Lexer
 open Parser
 open Batteries
 open Printexc
-open Sap_ast
+open Nm_ast
 open Sol_of_normal
 (*
 let lexsub pos str lexeme =
@@ -18,7 +18,7 @@ let lexsub pos str lexeme =
 
 let lexsub start end_ str lexeme =
     let head = String.sub str 0 start and
-        tail = String.sub str end_ (end_) and
+        tail = String.sub str end_ (40) and
         red = "\027[32m" and
         endc = "\027[0m" in
     head ^ red ^ lexeme ^ endc ^ tail

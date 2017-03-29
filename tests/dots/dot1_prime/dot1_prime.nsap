@@ -1,0 +1,16 @@
+type event = Collide(vx_ : int, vy_: int) | Move
+
+interface node point(e : event) -> (x: int, y: int) with
+  speed = 1;
+  t1 = x;
+  t1 = merge e (Move -> mult(addu(x, vx), speed));
+  t2 = y;
+  t2 = merge e (Move -> mult(addu(y, vy), speed));
+  t3 = vx;
+  t4 = vy;
+  t3 = merge e (Collide(vx_, vy_) -> vx_ when Collide(e));
+  t4 = merge e (Collide(vx_, vy_) -> vy_ when Collide(e));
+  x = 200 fby t1;
+  y = 200 fby t2;
+  vx = 1 fby t3;
+  vy = 1 fby t4

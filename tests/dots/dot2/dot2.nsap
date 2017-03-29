@@ -1,0 +1,20 @@
+type event = Collide(vx_: int, vy_: int) | Move | SpeedDown | SpeedUp
+
+interface node point(e : event) -> () with
+  max_speed = 20;
+  t1 = vx;
+  t2 = vy;
+  t1 = merge e (Collide(vx_, vy_) -> vx_ when Collide(e));
+  t2 = merge e (Collide(vx_, vy_) -> vy_ when Collide(e));
+  vx = 1 fby t1;
+  vy = 1 fby t2;
+  t3 = x;
+  t4 = y;
+  t3 = merge e (Move -> addu(x, mult(vx, speed)));
+  t4 = merge e (Move -> addu(y, mult(vy, speed)));
+  x = 400 fby t3;
+  y = 200 fby t4;
+  t5 = speed;
+  t5 = merge e (SpeedUp -> min(max_speed, addu(speed, 1)))
+                (SpeedDown -> min(max_speed, subu(speed, 1)));
+  speed = 2 fby t5

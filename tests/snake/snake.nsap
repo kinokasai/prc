@@ -1,0 +1,41 @@
+type dir = Up | Left | Down | Right
+type event = Move | MoveSecond(x_: int, y_:int) | ChangeDir(d_ : dir)
+
+interface node snake_node(e : event) -> () with
+  t0 = merge e (ChangeDir(d_) -> d_ when ChangeDir(e));
+  t1 = cleft(t0) every _;
+  t2 = cright(t0) every _;
+  t3 = cup(t0) every _;
+  t4 = cdown(t0) every _;
+  t5 = d;
+  t5 = merge e (ChangeDir(d_) -> merge t5 (Left -> t1 when Left(d_))
+                                          (Right -> t2 when Right(d_))
+                                          (Up -> t3 when Up(d_))
+                                          (Down -> t4 when Down(d_)));
+  t6 = x;
+  t6 = merge e (Move -> merge t5 (Left -> sub(x, node_size) when Left(t0))
+                                (Right -> add(x, node_size) when Right(t0)))
+               (MoveSecond(x_, y_) -> x_);
+  t7 = y;
+  t7 = merge e (Move -> merge t5 (Up -> sub(y, node_size) when Up(d))
+                                (Down -> add(y, node_size) when Down(d)))
+               (MoveSecond(x_, y_) -> y_);
+  d = Right fby t5;
+  x = 0 fby t6;
+  y = 0 fby t7
+
+node cleft(d: dir) -> (next_dir: dir) with
+  next_dir = d;
+  next_dir = merge d (Right -> Left when Right(d))
+
+node cright(d: dir) -> (next_dir: dir) with
+  next_dir = d;
+  next_dir = merge d (Left -> Right when Left(d))
+
+node cup(d: dir) -> (next_dir: dir) with
+  next_dir = d;
+  next_dir = merge d (Down -> Up when Right(d))
+
+node cdown(d: dir) -> (next_dir: dir) with
+  next_dir = d;
+  next_dir = merge d (Up -> Down  when Right(d))

@@ -35,127 +35,153 @@ event_type.Move = function() {
   return {id: event_enum.Move}
 }
 
-event_type.MoveSecond = function(x, y) {
-  return {id: event_enum.MoveSecond, x:x, y:y}
+event_type.MoveSecond = function(x_, y_) {
+  return {id: event_enum.MoveSecond, x_:x_, y_:y_}
 }
 
-event_type.ChangeDir = function(d) {
-  return {id: event_enum.ChangeDir, d:d}
+event_type.ChangeDir = function(d_) {
+  return {id: event_enum.ChangeDir, d_:d_}
 }
 
-function node() {
-  this.x = undefined;
+function snake_node() {
   this.y = undefined;
+  this.x = undefined;
   this.d = undefined;
-  this.move_left = new left();
-  this.move_right = new right();
-  this.move_down = new down();
-  this.move_up = new up();
-  this.cleft = new change_left();
-  this.cright = new change_right();
-  this.cdown = new change_down();
-  this.cup = new change_up();
+  this.cdown = new cdown();
+  this.cup = new cup();
+  this.cright = new cright();
+  this.cleft = new cleft();
 }
 
-node.prototype.reset = function() {
-  this.move_left.reset();
-  this.move_right.reset();
-  this.move_down.reset();
-  this.move_up.reset();
-  this.cleft.reset();
-  this.cright.reset();
+snake_node.prototype.reset = function() {
   this.cdown.reset();
   this.cup.reset();
-  this.x = 0;
+  this.cright.reset();
+  this.cleft.reset();
+  this.cdown.reset();
+  this.cup.reset();
+  this.cright.reset();
+  this.cleft.reset();
   this.y = 0;
+  this.x = 0;
   this.d = dir_enum.Right;
+  return this;
 }
 
-node.prototype.step = function(e) {
-  var x_ = undefined;
-  var y_ = undefined;
-  var d_ = undefined;
-  x_ = this.x;
-  y_ = this.y;
-  d_ = this.d;
+snake_node.prototype.step = function(e) {
+  var t0 = undefined;
+  var t1 = undefined;
+  var t2 = undefined;
+  var t3 = undefined;
+  var t4 = undefined;
+  var t5 = undefined;
+  var t6 = undefined;
+  var t7 = undefined;
   switch(e.id) {
     case event_enum.ChangeDir:
-      var d = e.d;
-      switch(d_) {
+      var d_ = e.d_;
+      t0 = d_;
+      break;
+  };
+  t1 = this.cleft.step(t0);
+  t2 = this.cright.step(t0);
+  t3 = this.cup.step(t0);
+  t4 = this.cdown.step(t0);
+  t5 = this.d;
+  switch(e.id) {
+    case event_enum.ChangeDir:
+      var d_ = e.d_;
+      switch(t5) {
         case dir_enum.Left:
           
-          [d_] = this.cleft.step(d);
+          t5 = t1;
           break;
         case dir_enum.Right:
           
-          [d_] = this.cright.step(d);
+          t5 = t2;
           break;
         case dir_enum.Up:
           
-          [d_] = this.cup.step(d);
+          t5 = t3;
           break;
         case dir_enum.Down:
           
-          [d_] = this.cdown.step(d);
+          t5 = t4;
           break;
       };
       break;
+  };
+  t6 = this.x;
+  switch(e.id) {
     case event_enum.Move:
       
-      switch(d_) {
+      switch(t5) {
         case dir_enum.Left:
           
-          [x_] = this.move_left.step(x_);
+          t6 = sub(this.x, node_size);
           break;
         case dir_enum.Right:
           
-          [x_] = this.move_right.step(x_);
-          break;
-        case dir_enum.Up:
-          
-          [y_] = this.move_up.step(y_);
-          break;
-        case dir_enum.Down:
-          
-          [y_] = this.move_down.step(y_);
+          t6 = add(this.x, node_size);
           break;
       };
       break;
     case event_enum.MoveSecond:
-      var x = e.x;
-      var y = e.y;
-      x_ = x;
-      y_ = y;
+      var x_ = e.x_;
+      var y_ = e.y_;
+      t6 = x_;
       break;
   };
-  this.x = x_;
-  this.y = y_;
-  this.d = d_;
+  t7 = this.y;
+  switch(e.id) {
+    case event_enum.Move:
+      
+      switch(t5) {
+        case dir_enum.Up:
+          
+          t7 = sub(this.y, node_size);
+          break;
+        case dir_enum.Down:
+          
+          t7 = add(this.y, node_size);
+          break;
+      };
+      break;
+    case event_enum.MoveSecond:
+      var x_ = e.x_;
+      var y_ = e.y_;
+      t7 = y_;
+      break;
+  };
+  this.d = t5;
+  this.x = t6;
+  this.y = t7;
   return this;
 }
-node.prototype.move = function () {
+snake_node.prototype.move = function () {
   this.step(event_type.Move());
   return this;
 }
 
-node.prototype.moveSecond = function (x, y) {
-  this.step(event_type.MoveSecond(x, y));
+snake_node.prototype.moveSecond = function (x_, y_) {
+  this.step(event_type.MoveSecond(x_, y_));
   return this;
 }
 
-node.prototype.changeDir = function (d) {
-  this.step(event_type.ChangeDir(d));
+snake_node.prototype.changeDir = function (d_) {
+  this.step(event_type.ChangeDir(d_));
   return this;
 }
 
-                function change_left() {
+        function cleft() {
   }
   
-  change_left.prototype.reset = function() {
+  cleft.prototype.reset = function() {
     
+    return this;
   }
   
-  change_left.prototype.step = function(d) {
+  cleft.prototype.step = function(d) {
     var next_dir = undefined;
     next_dir = d;
     switch(d) {
@@ -164,17 +190,18 @@ node.prototype.changeDir = function (d) {
         next_dir = dir_enum.Left;
         break;
     };
-    return [next_dir];
+    return next_dir;
   }
   
-                function change_right() {
+        function cright() {
     }
     
-    change_right.prototype.reset = function() {
+    cright.prototype.reset = function() {
       
+      return this;
     }
     
-    change_right.prototype.step = function(d) {
+    cright.prototype.step = function(d) {
       var next_dir = undefined;
       next_dir = d;
       switch(d) {
@@ -183,17 +210,18 @@ node.prototype.changeDir = function (d) {
           next_dir = dir_enum.Right;
           break;
       };
-      return [next_dir];
+      return next_dir;
     }
     
-                function change_up() {
+        function cup() {
       }
       
-      change_up.prototype.reset = function() {
+      cup.prototype.reset = function() {
         
+        return this;
       }
       
-      change_up.prototype.step = function(d) {
+      cup.prototype.step = function(d) {
         var next_dir = undefined;
         next_dir = d;
         switch(d) {
@@ -202,17 +230,18 @@ node.prototype.changeDir = function (d) {
             next_dir = dir_enum.Up;
             break;
         };
-        return [next_dir];
+        return next_dir;
       }
       
-                function change_down() {
+        function cdown() {
         }
         
-        change_down.prototype.reset = function() {
+        cdown.prototype.reset = function() {
           
+          return this;
         }
         
-        change_down.prototype.step = function(d) {
+        cdown.prototype.step = function(d) {
           var next_dir = undefined;
           next_dir = d;
           switch(d) {
@@ -221,54 +250,6 @@ node.prototype.changeDir = function (d) {
               next_dir = dir_enum.Down;
               break;
           };
-          return [next_dir];
+          return next_dir;
         }
         
-                function left() {
-          }
-          
-          left.prototype.reset = function() {
-            
-          }
-          
-          left.prototype.step = function(x) {
-            x = sub(x, node_size);
-            return [x];
-          }
-          
-                function right() {
-            }
-            
-            right.prototype.reset = function() {
-              
-            }
-            
-            right.prototype.step = function(x) {
-              x = add(x, node_size);
-              return [x];
-            }
-            
-                function up() {
-              }
-              
-              up.prototype.reset = function() {
-                
-              }
-              
-              up.prototype.step = function(y) {
-                y = sub(y, node_size);
-                return [y];
-              }
-              
-                function down() {
-                }
-                
-                down.prototype.reset = function() {
-                  
-                }
-                
-                down.prototype.step = function(y) {
-                  y = add(y, node_size);
-                  return [y];
-                }
-                

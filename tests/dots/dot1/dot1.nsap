@@ -1,0 +1,31 @@
+type event = Collide | Move | ArrowUp | ArrowDown
+type atm = MoveUp | MoveDown
+
+interface node point(e : event) -> (x: int, y: int) with
+  x = 200 fby 200;
+  t0 = st;
+  (t1, t2, t3) = up(e, y, speed) every _;
+  (t4, t5, t6) = down(e, y, speed) every _;
+  t7 = merge t0 (MoveUp -> t1 when MoveUp(st))
+                (MoveDown -> t4 when MoveDown(st));
+  t8 = merge t0 (MoveUp -> t2 when MoveUp(st))
+                (MoveDown -> t5 when MoveDown(st));
+  t9 = merge t0 (MoveUp -> t3 when MoveUp(st))
+                (MoveDown -> t6 when MoveDown(st));
+  st = MoveUp fby t7;
+  y = 200 fby t8;
+  speed = 1 fby t9
+
+node up(e : event, y : int, speed: int) -> (st: atm, y: int, speed: int) with
+  st = MoveUp;
+  y = merge e (Move -> subu(y, speed) when Move(e));
+  st = merge e (Collide -> MoveDown when Collide(e));
+  speed = merge e (ArrowUp -> addu(speed, 1) when ArrowUp(e))
+                  (ArrowDown -> subu(speed, 1) when ArrowDown(e))
+
+node down(e : event, y : int, speed: int) -> (st: atm, y: int, speed: int) with
+  st = MoveDown;
+  y = merge e (Move -> addu(y, speed) when Move(e));
+  st = merge e (Collide -> MoveUp when Collide(e));
+  speed = merge e (ArrowUp -> subu(speed, 1) when ArrowUp(e))
+                  (ArrowDown -> addu(speed, 1) when ArrowDown(e))

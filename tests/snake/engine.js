@@ -25,7 +25,7 @@ for (i = 200; i > 200 - 5 * node_size; i -= node_size) {
 }
 
 function make_node(x, y) {
-    var node_ = new node();
+    var node_ = new snake_node();
     node_.reset();
     node_.x = x;
     node_.y = y;

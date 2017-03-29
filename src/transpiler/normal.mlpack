@@ -1,1 +1,5 @@
 normal/Compiler
+normal/Nm_ast
+normal/Lexer
+normal/Parser
+normal/Sol_of_normal
