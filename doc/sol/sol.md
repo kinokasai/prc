@@ -22,41 +22,13 @@ of the class.
 Our model concentrates on the implementation of an `interface` node -
 or machine - that will be used by the game engine's javascript implementation.
 Such a node will typically take an unique parameter, in the form of an `event` variable.
-
-Such an `event` will leverage the power of `Algebraic Data Types` to describe the event.
-
-```haskell
-type event = Move | ChangeDir(x: int, y: int)
-```
-
-In order to represent such a data structure in Javascript, we leverage the ADT/Object duality (described in Cook's paper) and convert the event type to a Javascript object.
-
-The previously mentioned `event` type will be compiled to the following Javascript object.
-
-```javascript
-var event_enum = Object.freeze({
-  Move: 1,
-  ChangeDir: 2
-});
-
-function event_type() {}
-
-event_type.Move = function() {
-  return {id: event_enum.Move}
-}
-
-event_type.ChangeDir = function(x, y) {
-  return {id: event_enum.ChangeDir, x:x, y:y}
-}
-
-```
-
-The type variant is idntified by the `id` field present in each object variation.
-Each variant then has its specific properties added in its object litteral.
+This variable will be an instance of an ADT type.
 
 ###Interface
 
 ```haskell
+type event = Move | ChangeDir(x: int, y: int)
+
 machine main =
   interface event
   memory
@@ -65,6 +37,10 @@ machine main =
   step(e : event) returns (x: int, y: int) =
     var in
 ```
+
+Then, for each variant of the `event` type, we add a method to the prototype of the interfaced node
+
+*Formalism will be there*
 
 ```javascript
 function main() {}
@@ -85,11 +61,10 @@ main.prototype.changeDir = function (x, y) {
 }
 
 ```
-which allows the engine's code to simply write:
+which allows the engine's code write a simple function call depending on the event
+one is willing to trigger.
 
 ```javascript
 main.move();
 main.changeDir(10, 10);
 ```
-
-Effectively providing a nice interface to the dataflow code.

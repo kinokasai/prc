@@ -33,11 +33,8 @@ case (e) {
 
 #### Compilation
 
-However, Javascript doesn't have Algebraic Data Types.
-Thus, some trick is required. Fortunately, this has been the center of some research, as this is know
-as The Expression problem.
-While we'll not dive into detail here, know that an ADT can be represented
-using Object-Oriented Programming.
+Sadly, Javascript doesn't have Algebraic Data Types.
+However, we can simulate them.
 
 We use a class's static methods to represent the construction of a variant type.
 If a variant type is also a product type, that is it contains variables, the static method will take
