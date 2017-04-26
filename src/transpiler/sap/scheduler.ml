@@ -149,13 +149,12 @@ let schedule_node eql node_id =
   try 
     let map = make_hashmap eql in
     let g = make_graph map eql in
-    let file = open_out_bin "mygraph.dot" in
+    let file = "build/" ^ node_id ^ ".dot" |> open_out_bin in
     Dot.output_graph file g;
     causality_check g;
     let order = !(get_order g)@get_fbys [] eql in
     let f = (fun id -> Hashtbl.find map id) in
     let eql = order |> List.map f |> unique in
-    (*eql |> print_eql |> print_endline;*)
     eql
   with
     | CyclicDependencyGraph(_) -> raise (CyclicDependencyGraph (node_id |> cwrap blue))
