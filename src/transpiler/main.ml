@@ -1,25 +1,30 @@
 open Core.Std
 open Batteries
 open Printexc
+open Shared.Exceptions
+
+let compile_sol out_name ast =
+    Sol.Compiler.compile out_name ast
+
+let compile_sap filename out_name =
+  Sap.Compiler.compile filename
+  |> compile_sol out_name
 
 let command =
     Command.basic
         ~summary:"Parse sol and compile it to js"
         Command.Spec.(
             empty
-            +> flag "-print-sol" no_arg~doc:" print sol code"
-            +> flag "-sol" no_arg~doc:" compile from sol code"
-            +> flag "-nsap" no_arg~doc:"Compile from nsap code"
+            +> flag "-o" (optional_with_default "out.js" string) ~doc:" File output name"
+            +> flag "-sol" no_arg ~doc:" compile from sol code"
             +> anon ("filename" %: file)
         )
-    (fun print sol nsap filename _ ->
-        try match nsap with
-        | true -> Normal.Compiler.compile print filename
-        | false ->
-          match sol with
-            | true -> Sol.Compiler.compile print filename
-            | _ -> Sap.Compiler.compile print filename 
+    (fun out_name sol filename _ ->
+        try
+            let _ = Sys.command "mkdir -p build" in
+            compile_sap filename out_name
         with
+          | Unrecoverable -> "Unrecoverable Error: exiting..." |> print_endline
           | e -> print_string(to_string(e) ^ get_backtrace())
     )
 

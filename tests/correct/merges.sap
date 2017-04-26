@@ -1,0 +1,8 @@
+type num = One | Zero
+type dir = Up
+
+node what() -> (x: int) with
+  n = One;
+  d = Up;
+  x = merge n (One -> merge d (Up -> 3))
+              (Zero -> 2)
