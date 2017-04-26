@@ -1,6 +1,9 @@
 open BatList
+open Graph
 open Sap_ast
 open Print_sap
+open Shared.Exceptions
+open Shared.Colors
 
 (* Building the hashmap *)
 
@@ -73,6 +76,8 @@ module Dot = Graph.Graphviz.Dot(struct
   let graph_attributes _ = []
 end)
 
+module Dfs = Traverse.Dfs(G)
+
 (* Debug function *)
 let print_ids ids =
   print_endline "ids {";
@@ -86,7 +91,11 @@ let add_nodes map eql =
   ids |> fold_left f g
 
 let rec get_deps depl = function
-  | Op(_, expl) -> expl |> map (get_deps depl) |> flatten
+  | Op(_, expl)
+  | ExpPattern(expl)
+  | NodeCall(_, expl) -> expl |> map (get_deps depl) |> flatten
+  | Merge(_, flwl) -> flwl |> map (fun flw -> flw.exp) |> map (get_deps depl) |> flatten
+  | When(exp) -> get_deps depl exp
   | Variable(id) -> id::depl
   | _ -> depl
 
@@ -130,16 +139,25 @@ let get_order g =
   let l = ref [] in
   tmp l g
 
-let schedule_node eql =
-  let map = make_hashmap eql in
-  let g = make_graph map eql in
-  let file = open_out_bin "mygraph.dot" in
-  Dot.output_graph file g;
-  let order = !(get_order g)@get_fbys [] eql in
-  let f = (fun id -> Hashtbl.find map id) in
-  let eql = order |> List.map f |> unique in
-  (*eql |> print_eql |> print_endline;*)
-  eql
+let causality_check g =
+  match Dfs.has_cycle g with
+    | true -> raise (CyclicDependencyGraph "")
+    | false -> ()
+
+let schedule_node eql node_id =
+  try 
+    let map = make_hashmap eql in
+    let g = make_graph map eql in
+    let file = open_out_bin "mygraph.dot" in
+    Dot.output_graph file g;
+    causality_check g;
+    let order = !(get_order g)@get_fbys [] eql in
+    let f = (fun id -> Hashtbl.find map id) in
+    let eql = order |> List.map f |> unique in
+    (*eql |> print_eql |> print_endline;*)
+    eql
+  with
+    | CyclicDependencyGraph(_) -> raise (CyclicDependencyGraph (node_id |> cwrap blue))
 
 
 let schedule ast =
@@ -148,6 +166,6 @@ let schedule ast =
                         in_vdl = node.in_vdl;
                         out_vdl = node.out_vdl; 
                         step_vdl = node.step_vdl;
-                        eql = schedule_node node.eql}) in
+                        eql = schedule_node node.eql node.id}) in
   let ndl = ast.node_list |> map f in
   {type_dec_list = ast.type_dec_list; node_list = ndl}

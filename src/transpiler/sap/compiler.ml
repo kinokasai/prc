@@ -7,6 +7,8 @@ open Printexc
 open Print_sap
 open Sap_ast
 open Scheduler
+open Shared.Exceptions
+open Shared.Colors
 
 let lexsub start end_ str lexeme =
     let head = String.sub str 0 start and
@@ -38,4 +40,5 @@ let compile print filename =
         exit 2)
     | SyntaxError(str) ->
         print_string str
+    | CyclicDependencyGraph(str) -> "Cyclic Dependency graph in node " ^ str |> error |> print_endline |> raise Unrecoverable
     | e -> print_string(to_string(e) ^ get_backtrace())
