@@ -13,14 +13,14 @@ let command =
             +> anon ("filename" %: file)
         )
     (fun print sol nsap filename _ ->
-        match nsap with
-        | false -> Sap.Compiler.compile print filename
-        | true ->
-          try match sol with
-            | false -> Normal.Compiler.compile print filename
-            | _ -> Sol.Compiler.compile print filename
-          with
-            | e -> print_string(to_string(e) ^ get_backtrace())
+        try match nsap with
+        | true -> Normal.Compiler.compile print filename
+        | false ->
+          match sol with
+            | true -> Sol.Compiler.compile print filename
+            | _ -> Sap.Compiler.compile print filename 
+        with
+          | e -> print_string(to_string(e) ^ get_backtrace())
     )
 
 let _ =

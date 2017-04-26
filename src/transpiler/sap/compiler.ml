@@ -1,21 +1,12 @@
 open Lexer
 open Parser
+open Utils
 open Batteries
 open Normal_of_sap
 open Printexc
 open Print_sap
 open Sap_ast
-(*
-let lexsub pos str lexeme =
-    let len = String.length lexeme in
-    let msg_len = 40 in
-    let start = max 0 (pos - msg_len) in
-    let end_len = min msg_len (String.length str - start - len) in
-    let head = String.sub str start (start) and
-        tail = String.sub str (start + start) (end_len) and
-        red = "\027[32m" and
-        endc = "\027[0m" in
-    head ^ red ^ lexeme ^ endc ^ tail*)
+open Scheduler
 
 let lexsub start end_ str lexeme =
     let head = String.sub str 0 start and
@@ -31,8 +22,13 @@ let compile print filename =
   let filebuf = Lexing.from_channel input in
   try
     let ast = Parser.init Lexer.token filebuf in
-    let nm_ast = nm_of_ast ast in
-    print_string (iter nm_ast)
+    let ast = schedule ast in
+    ast |> print_ast |> print_endline
+    (*let nm_ast = nm_of_ast ast in
+    let print_nm = (function true -> "[NORMAL]\n" | false -> "[UNNORMAL]\n") in
+    let nm_flag = nm_ast |> is_normal |> print_nm in
+    print_string (nm_flag ^ iter nm_ast);*)
+
   with
     | Parser.Error ->
         (Printf.eprintf "At offset %d: syntax error on token: \"%s\"!\n%s\n"
