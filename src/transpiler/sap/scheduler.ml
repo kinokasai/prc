@@ -4,6 +4,7 @@ open Sap_ast
 open Print_sap
 open Shared.Exceptions
 open Shared.Colors
+open Utils
 
 (* Building the hashmap *)
 
@@ -32,6 +33,12 @@ let print_hashmap map =
   let f = (fun x y -> print_endline (x ^ " -> " ^ print_eq y)) in
   Hashtbl.iter f map
 
+(* Debug function *)
+let print_ids ids =
+  print_endline "ids {";
+  ids |> iter print_endline;
+  print_endline "}"
+
 let rec get_fbys fbyl eql =
   match eql with
     | [] -> fbyl
@@ -45,7 +52,7 @@ let get_ids map eql =
   let f = (fun id _ acc -> id::acc) in
   let fbys = get_fbys [] eql in
   let pred = (fun id -> mem id fbys) in
-  Hashtbl.fold f map [] |> remove_if pred
+  Hashtbl.fold f map [] |> remove_if_all pred
 
 (* Creating the graph *)
 
@@ -78,12 +85,6 @@ end)
 
 module Dfs = Traverse.Dfs(G)
 
-(* Debug function *)
-let print_ids ids =
-  print_endline "ids {";
-  ids |> iter print_endline;
-  print_endline "}"
-
 let add_nodes map eql =
   let g = G.empty in
   let ids = get_ids map eql in
@@ -104,7 +105,7 @@ let add_edge g id map eql =
   let deps = get_deps [] eq.rhs in
   let ids = get_ids map eql in
   let pred = (fun dep_id -> not (mem dep_id ids)) in
-  let deps = deps |> remove_if pred in
+  let deps = deps |> remove_if_all pred in
   let f = (fun graph dep_id -> G.add_edge graph id dep_id) in
   deps |> fold_left f g
 

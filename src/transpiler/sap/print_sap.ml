@@ -102,7 +102,7 @@ and print_type_dec td =
 
 and print_val = function
   | Litteral(str) -> str
-  | _ -> "constr"
+  | Constr(constr) -> constr.id
 
 and print_vardecs vdl =
   vdl |> map print_vardec |> concat ", "
