@@ -45,3 +45,10 @@ type ast =
     type_dec_list : type_dec list;
     node_list: node list;
   }
+
+(* Used for transpiling to SOL *)
+type memory =
+  {
+    var_dec : var_dec;
+    value : value;
+  }
