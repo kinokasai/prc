@@ -8,7 +8,9 @@ let digit = ['0'-'9']
 let white_ = [' ' '\t' '\n']+
 let num = digit+
 let float = digit+ ('.'digit*)?
-let ident = ['a'-'z'] ['a'-'z' 'A'-'Z' '0'-'9' '_']*
+let simple_ident = ['a'-'z'] ['a'-'z' 'A'-'Z' '0'-'9' '_']*
+let ident = simple_ident('.'simple_ident)?
+let step_id = simple_ident".step"
 let type_const = ['A'-'Z']['a'-'z' 'A'-'Z']*
 
 rule token = parse
@@ -36,6 +38,7 @@ rule token = parse
     | "in" { IN }
     | "type" { TYPE }
     | "case" { CASE }
+    | step_id as id { STEP_ID id}
     | ident as id { ID id }
     | type_const as tc { CONSTR tc }
     | num as i { LITTERAL i }

@@ -9,7 +9,7 @@
 %token MACHINE MEMORY RESET STATE STEP INSTANCES RETURNS VAR IN TYPE CASE INTERFACE
 %token SKIP
 %token <string> CONSTR
-%token <string> ID LITTERAL
+%token <string> ID LITTERAL STEP_ID
 
 %start <Ast.sol_ast> init
 %%
@@ -88,7 +88,7 @@ exp_list:
 
 exp:
     | st = state { st }
-    | id = ID DOT STEP LPAREN expl = exp_list RPAREN { Step(id, expl) }
+    | id = STEP_ID LPAREN expl = exp_list RPAREN { Step(id, expl) }
     | id = ID LPAREN expl = exp_list RPAREN { Op(id, expl) }
     | id = ID { Variable(id) }
     | vl = value {Value(vl)}
