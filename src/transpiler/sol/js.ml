@@ -2,6 +2,10 @@ open Shared.Types
 open Ast
 open Printf
 open Helpers
+open Shared.Exceptions
+open Shared.Colors
+
+exception Empty_Id_List
 
 module Smap = Map.Make(String);;
 let tidmap = ref Smap.empty;;
@@ -35,7 +39,7 @@ let js_of_constr ty_id c_id = match c_id with
     | _ -> ty_id ^ "_enum." ^ c_id
 
 let js_of_id_list = function
-  | [] -> raise (Failure "empty id list")
+  | [] -> raise Empty_Id_List
   | [x] -> x
   | x::xs -> "[" ^ ((x::xs) |> concat ", ") ^ "]"
 
@@ -55,7 +59,7 @@ let rec js_of_val = function
 let rec js_of_exp = function
   | Op(id, expl) -> id ^ wrap (List.map js_of_exp expl |> concat ", ")
   | State(id) -> "this." ^ id
-  | Step(id, expl) -> "this." ^ id ^
+  | Step(id, expl) -> "this." ^ remove id ".step" ^
             ".step(" ^ (List.map js_of_exp expl |> concat ", ") ^ ")"
   | Variable(id) -> id
   | Value(vl) -> js_of_val vl
@@ -85,7 +89,7 @@ and js_of_branch switch_id = function
     let inst = iendl() ^ js_of_seqinst inst ^ iendl() in
     let break = "break;" in
     let d = decindent() in
-    case ^ constr_vars ^ inst ^ break ^ d
+    case (*^ constr_vars*) ^ inst ^ break ^ d
             
 
 and js_of_seqinst sinst =
@@ -107,10 +111,13 @@ let js_of_step interface = function
     let b = js_of_vardecs vd in
     let b' = if String.length b == 0 then "" else iendl() in
     let c = js_of_seqinst instl ^ iendl() in
-    let d = if interface then "return this;"
-                         else "return " ^ js_of_id_list (List.map id_of_vardec rvd) ^ ";" in
-    let e = decendl() in
-    a ^ b ^ b' ^ c ^ d ^ e
+    try
+        let d = if interface then "return this;"
+                             else "return " ^ js_of_id_list (List.map id_of_vardec rvd) ^ ";" in
+        let e = decendl() in
+        a ^ b ^ b' ^ c ^ d ^ e
+    with
+        | Empty_Id_List -> No_Output "" |> raise
 
 let js_obj_of_typedec type_id ty = 
   let arg_lits = List.map (fun vd -> vd.var_id ^ ":" ^ vd.var_id) ty.vdl |> concat ", " in
@@ -138,6 +145,7 @@ let js_of_interface mid id =
 
 let rec js_of_machine = function
   | {id; memory; instances; interface; reset; step} ->
+  try
     let is_interface = BatOption.is_some interface in
     let a = "function " ^ id ^ "() {" in
     let a' = incendl() in
@@ -156,6 +164,8 @@ let rec js_of_machine = function
       | None -> ""
       | Some tid -> js_of_interface id tid in
     a ^ a' ^ b ^ b' ^ c ^ c' ^ d ^ e ^ f ^ g ^ h ^ i ^ j ^ k
+with
+    | No_Output(str) -> "Node " ^ (cwrap blue id) ^ " has no output" |> error
 
 and js_of_memory mem =
     List.map (fun vd -> "this." ^ (id_of_vardec vd) ^ " = undefined;") mem
