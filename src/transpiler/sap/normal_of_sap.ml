@@ -1,9 +1,9 @@
 open Sap_ast
 open BatList
+open Shared.Exceptions
 
-exception ExpectedSingle
 exception ExpectedPattern
-
+exception ExpectedSingle
 
 let gen, reset =
     let id = ref 0 in
@@ -33,9 +33,13 @@ and nm_of_eql eql =
       |> append !fbyl
 
 and nm_of_eq eq =
+try
   match eq.lhs with
     | Id(id) -> [{lhs = Id(id); rhs = nm_of_exp eq.rhs;}]
     | Pattern(lhsl) -> demux_exp lhsl eq.rhs
+with
+  | ExpectedPattern -> Expected ("Expected Pattern in equation: " ^ (Print_sap.print_eq eq |> quote)) |> raise
+  | ExpectedSingle -> Expected ("Expected Single in equation: " ^ (Print_sap.print_eq eq |> quote)) |> raise
 
 and nm_of_exp exp =
   match exp with
