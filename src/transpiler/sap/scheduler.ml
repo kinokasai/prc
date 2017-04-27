@@ -50,9 +50,9 @@ let rec get_fbys fbyl eql =
 
 let get_ids map eql =
   let f = (fun id _ acc -> id::acc) in
-  let fbys = get_fbys [] eql in
-  let pred = (fun id -> mem id fbys) in
-  Hashtbl.fold f map [] |> remove_if_all pred
+  (*let fbys = get_fbys [] eql in
+  let pred = (fun id -> mem id fbys) in*)
+  Hashtbl.fold f map []  (* |> remove_if_all pred*)
 
 (* Creating the graph *)
 
@@ -85,6 +85,14 @@ end)
 
 module Dfs = Traverse.Dfs(G)
 
+let rev_edge g vert =
+  let predl = G.pred g vert in
+  let edgel = G.pred_e g vert in
+  let rm_edge = (fun graph edge -> G.remove_edge_e graph edge) in
+  let add_edge = (fun graph v -> G.add_edge graph vert v) in
+  let g = edgel |> fold_left rm_edge g in
+  predl |> fold_left add_edge g
+
 let add_nodes map eql =
   let g = G.empty in
   let ids = get_ids map eql in
@@ -98,6 +106,7 @@ let rec get_deps depl = function
   | Merge(_, flwl) -> flwl |> map (fun flw -> flw.exp) |> map (get_deps depl) |> flatten
   | When(exp) -> get_deps depl exp
   | Variable(id) -> id::depl
+  | Fby(_, exp) -> get_deps depl exp
   | _ -> depl
 
 let add_edge g id map eql =
@@ -112,8 +121,11 @@ let add_edge g id map eql =
 let make_graph map eql =
   let g = add_nodes map eql in
   let ids = get_ids map eql in
+  let fbys = get_fbys [] eql in
   let f = (fun acc id -> add_edge acc id map eql) in
-  ids |> fold_left f g
+  let g = ids |> fold_left f g in
+  let f = (fun g id -> rev_edge g id) in
+  fbys |> fold_left f g
 
 let vert_has_deps g vert =
   let succ = G.succ g vert in
@@ -134,7 +146,6 @@ let rec tmp freel g =
       let f = (fun graph id -> G.remove_vertex graph id) in
       let g = !freel |> fold_left f g in
       tmp freel g
-
 
 let get_order g =
   let l = ref [] in
