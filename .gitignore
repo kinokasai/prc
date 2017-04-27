@@ -10,6 +10,8 @@
 sdt
 runtime.js
 
+build/
+
 # ocamlbuild working directory
 _build/
 src/transpiler/_build
