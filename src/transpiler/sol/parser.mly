@@ -37,7 +37,8 @@ machine:
         MEMORY m = memory INSTANCES inst = instances
         RESET LPAREN RPAREN EQUALS e = seq_inst
         STEP se = step_dec
-        { { id = i; memory = m; instances = inst; interface = interface; reset = e; step = se;} }
+        { { id = i; memory = m; instances = inst; interface = interface; reset = e; step = se;
+            deltas = None} }
 
 memory:
     | vd = var_decs { vd }

@@ -47,6 +47,7 @@ type machine =
         interface : id option;
         reset : inst list;
         step : step_dec;
+        deltas : delta list option;
     }
 
 type sol_ast =

@@ -2,14 +2,18 @@ open Sap_ast
 open BatList
 open Shared.Exceptions
 open Shared.Types
+open Print_sap
 
 exception ExpectedPattern
 exception ExpectedSingle
 
+let make_delta old_id new_id =
+  {old_id; new_id}
+
 let fily = Utils.fily
 let gidl = ref []
 let eqfbyl = ref []
-let replaced_id_list = ref []
+let delta_list = ref []
 let replaced = ref None
 
 let gen, reset =
@@ -32,9 +36,9 @@ let replace_out_vdl out_vdl =
       | [] -> newl
       | x::xs ->
       try
-        let f = (fun tuple -> (fst tuple) = x.var_id) in
-        let tuple = !replaced_id_list |> find f in
-        let vd = replace_vd x (snd tuple) in
+        let f = (fun delta -> delta.old_id = x.var_id) in
+        let delta = !delta_list |> find f in
+        let vd = replace_vd x delta.new_id in
           tmp (vd::newl) xs
       with
         | Not_found -> tmp (x::newl) xs in
@@ -52,14 +56,14 @@ and nm_of_eql eql =
 
 and nm_of_eq eq =
 try
+let new_eq = { lhs = eq.lhs;
+  rhs = nm_of_exp eq.clk eq.rhs;
+  clk = eq.clk} in
 let _ = match !replaced with
   | None -> ()
-  | Some id -> replaced_id_list := (hd (Utils.get_ids_from_lhs eq.lhs), id)::!replaced_id_list;
+  | Some id -> delta_list := make_delta (hd (Utils.get_ids_from_lhs eq.lhs)) id ::!delta_list;
                replaced := None in
-
-{ lhs = eq.lhs;
-  rhs = nm_of_exp eq.clk eq.rhs;
-  clk = eq.clk}
+  new_eq
 with
   | ExpectedSingle -> Expected ("Expected Single in equation: " ^ (Print_sap.print_eq eq |> quote)) |> raise
 
@@ -77,22 +81,39 @@ and nm_of_exp clk exp =
       let _ = replaced := Some id in
         Variable(id)
     | Op(id, expl) -> Op(id, expl |> map (nm_of_exp clk))
-    | NodeCall(id, expl) -> NodeCall(id, expl |> map (nm_of_exp clk))
+    (* You should replace the nodecall *)
+    | NodeCall(nid, expl) -> 
+      let id = new_id() in(*NodeCall(id, expl |> map (nm_of_exp clk))*)
+      let eq = {lhs= Id(id); rhs = NodeCall(nid, expl); clk} in
+      let _ = eqfbyl := eq::!eqfbyl in
+      let _ = replaced := Some id in
+        Variable(id)
     | When(exp, _) -> nm_of_exp clk exp
     (* I think you should add a flow list there *)
     | Merge(id, flwl) -> Merge(id, flwl |> map (nm_of_flow clk))
     | _ -> exp
 
+(*and add_out_eq eql =
+  let f = (fun delta -> {lhs = Id(delta.fresh_id);
+                         rhs = Variable(delta.new_id);
+                         clk = delta.clk}) in
+  eql@(!delta_list |> map f)*)
+
 and nm_of_node node =
   let _ = eqfbyl := [] in
   let _ = gidl := [] in
+  let _ = delta_list := [] in
   let interface = node.interface in
   let id = node.id in
   let in_vdl = node.in_vdl in
   let step_vdl = node.step_vdl in
   let eql = Demux.demux_eql node.eql in
+  (*eql |> map print_eq |> iter print_endline;*)
   let idl = Utils.get_ids_eql eql in
   let _ = gidl := idl in
-  let eql = nm_of_eql node.eql in
-  let out_vdl = replace_out_vdl node.out_vdl in
-  {interface; id; in_vdl; out_vdl; step_vdl; eql}
+  let eql = node.eql |> nm_of_eql in
+  let out_vdl = node.out_vdl in
+  let deltas = Some !delta_list in
+  (*let eql = node.eql |> nm_of_eql |> add_out_eq in*)
+  (*let out_vdl = replace_out_vdl node.out_vdl in*)
+  {interface; id; in_vdl; out_vdl; step_vdl; eql; deltas}

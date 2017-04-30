@@ -68,7 +68,7 @@ node_list:
 node:
   | interface = boption(INTERFACE) NODE id = ID LPAREN in_vdl = var_decs RPAREN 
     RETURNS LPAREN out_vdl = var_decs RPAREN WITH
-    eql = eq_list { {interface; id; in_vdl; out_vdl; step_vdl = []; eql} }
+    eql = eq_list { {interface; id; in_vdl; out_vdl; step_vdl = []; eql; deltas = None} }
 
 type_dec_list:
     | tdl = list(type_dec) { tdl }

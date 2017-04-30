@@ -46,6 +46,7 @@ type node =
     out_vdl : var_dec list;
     step_vdl : var_dec list;
     eql : equation list;
+    deltas: delta list option;
   }
 
 type ast =

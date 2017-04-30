@@ -1,5 +1,6 @@
 open Sap_ast
 open Shared.Exceptions
+open Print_sap
 
 let map = BatList.map
 let flatten = BatList.flatten
@@ -13,6 +14,7 @@ and assert_simple_rhs eq =
     | Pattern(lhsl) ->
       (match eq.rhs with
         | NodeCall(_,_) -> lhsl |> assert_flat_lhs
+        | Variable(id) -> true (* FIXME: Make sure that id belongs to a NodeCall *)
         | _ -> false)
     | _ -> true
 
@@ -28,15 +30,14 @@ and expect_exp exp =
     | Variable(_) -> true
     | Value(_) -> true
     | _ -> false
-
+    
 and explore_eq eq =
-  assert_simple_rhs eq &&
+   assert_simple_rhs eq &&
   match eq.rhs with
     | ExpPattern(_) -> false
     | Fby(_, exp) -> expect_exp exp
     | NodeCall(_, expl) -> expl |> List.fold_left (fun acc exp -> acc && expect_exp exp) true
     | _ -> expect_cexp eq.rhs
-
 
 and explore_node node =
   node.eql

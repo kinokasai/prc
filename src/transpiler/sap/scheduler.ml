@@ -183,6 +183,7 @@ let schedule ast =
                         in_vdl = node.in_vdl;
                         out_vdl = node.out_vdl; 
                         step_vdl = node.step_vdl;
-                        eql = schedule_node node.eql node.id}) in
+                        eql = schedule_node node.eql node.id;
+                        deltas = node.deltas}) in
   let ndl = ast.node_list |> map f in
   {type_dec_list = ast.type_dec_list; node_list = ndl}

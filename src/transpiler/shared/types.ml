@@ -27,3 +27,5 @@ type constr =
     id : id;
     params: id list;
   }
+  
+type delta = {old_id : id; new_id : id}

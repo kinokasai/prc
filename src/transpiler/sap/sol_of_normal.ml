@@ -53,16 +53,21 @@ let add_to_mem eq =
 let explore_mem_list eql =
   List.iter add_to_mem eql
 
-let make_undef_mach_dec id =
-  Sol.Ast.{mach_id = id; type_id = id}
+let make_mach_dec id new_id =
+  Sol.Ast.{mach_id = new_id; type_id = id}
 
 let add_to_inst eq =
   match eq.rhs with
-    | NodeCall(id, _) -> inst_list := (make_undef_mach_dec id)::!inst_list
-    | _ -> ()
+    | NodeCall(id, expl) ->
+      let new_id = Normal_of_sap.new_id() in
+      inst_list := (make_mach_dec id new_id)::!inst_list;
+      {lhs = eq.lhs;
+      rhs = NodeCall(new_id, expl);
+      clk = eq.clk}
+    | _ -> eq
 
 let explore_inst_list eql =
-  List.iter add_to_inst eql
+  List.map add_to_inst eql
 
 let get_interface_type = function
   | [] -> raise (No_Interface_Type "No parameter to build interface on node ")
@@ -179,16 +184,18 @@ try
   let _ = mem_list := [] in
   let _ = var_list := [] in
   let _ = explore_mem_list node.eql in
-  let _ = explore_inst_list node.eql in
+  let eql = explore_inst_list node.eql in
   let interface = if node.interface then get_interface_type node.in_vdl else None in
   let id = node.id in
   let in_idl = node.in_vdl |> map get_id_from_var_dec in
   let f = (fun id -> not (mem id in_idl)) in
   let step_var_decs = !var_list |> filter f |> map make_undef_var_dec in
-  let step = make_step node.in_vdl node.out_vdl step_var_decs (sol_of_eq_list node.eql) in
+  let step = make_step node.in_vdl node.out_vdl step_var_decs (sol_of_eq_list eql) in
   let reset = make_reset () in
-  let memories = List.map (fun mem -> mem.var_dec) !mem_list in
-  Sol.Ast.{id; memory = memories; instances = !inst_list; interface; reset = reset; step}
+  let memory = List.map (fun mem -> mem.var_dec) !mem_list in
+  let instances = !inst_list in
+  let deltas = node.deltas in
+  Sol.Ast.{id; memory; instances; interface; reset = reset; step; deltas}
 with
   | No_Interface_Type(str) -> raise (No_Interface_Type ((node.id |> cwrap blue) ^ str |> error))
   | Too_Many_Parameters(str) -> raise (Too_Many_Parameters ((node.id |> cwrap blue) ^ str |> error))

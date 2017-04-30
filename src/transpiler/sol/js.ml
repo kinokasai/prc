@@ -4,6 +4,7 @@ open Printf
 open Helpers
 open Shared.Exceptions
 open Shared.Colors
+open List
 
 exception Empty_Id_List
 
@@ -104,7 +105,13 @@ let js_of_vardecs vds =
     List.map (fun vd -> "var " ^ (id_of_vardec vd) ^ " = undefined;") vds
         |> concat (iendl())
 
-let js_of_step interface = function
+let js_of_out_vd meml vd =
+    let midl = meml |> map id_of_vardec in
+    match mem vd.var_id midl with
+      | true -> "this." ^ vd.var_id
+      | false -> vd.var_id
+
+let js_of_step interface meml = function
   | {avd; rvd; vd; instl} ->
     let _ = if interface then interface_event_id := Some (List.hd avd).var_id in
     let a = "step = function(" ^ js_of_vardecs_id avd ^ ") {" ^ incendl() in
@@ -113,7 +120,7 @@ let js_of_step interface = function
     let c = js_of_seqinst instl ^ iendl() in
     try
         let d = if interface then "return this;"
-                             else "return " ^ js_of_id_list (List.map id_of_vardec rvd) ^ ";" in
+                             else "return " ^ js_of_id_list (List.map (js_of_out_vd meml) rvd) ^ ";" in
         let e = decendl() in
         a ^ b ^ b' ^ c ^ d ^ e
     with
@@ -143,8 +150,25 @@ let js_of_interface mid id =
   let td = Smap.find id !tmap in
     List.map (js_of_type mid id) td |> concat "\n"
 
+let js_of_delta id delta =
+  let a = id ^ ".prototype.get_" ^ delta.old_id ^ " = function() {" in
+  let b = incendl() in
+  let c = "return this." ^ delta.new_id ^ ";" in
+  let d = decendl() in
+  let e = "}" ^ iendl() ^ iendl() in
+  let f = id ^ ".prototype.set_" ^ delta.old_id ^ " = function (new_value) {" in
+  let g = incendl() in
+  let h = "this." ^ delta.new_id ^ " = new_value;" ^ iendl() in
+  let h' = "return this;" in
+  let i = decendl() in
+  let j = "}" ^ iendl() ^ iendl() in
+  a ^ b ^ c ^ d ^ e ^ f ^ g ^ h ^ h' ^ i ^ j
+
+let js_of_deltas id deltas =
+  deltas |> map (js_of_delta id) |> concat ""
+
 let rec js_of_machine = function
-  | {id; memory; instances; interface; reset; step} ->
+  | {id; memory; instances; interface; reset; step; deltas} ->
   try
     let is_interface = BatOption.is_some interface in
     let a = "function " ^ id ^ "() {" in
@@ -158,12 +182,15 @@ let rec js_of_machine = function
     let f = js_of_reset reset instances in
     let g = decendl() in
     let h = "}" ^ iendl() ^ iendl() in
-    let i = id ^ ".prototype." ^ js_of_step is_interface step in
+    let i = id ^ ".prototype." ^ js_of_step is_interface memory step in
     let j = "}" ^ iendl() in
+    let z = match deltas with
+      | None -> ""
+      | Some deltas -> js_of_deltas id deltas in
     let k = match interface with
       | None -> ""
       | Some tid -> js_of_interface id tid in
-    a ^ a' ^ b ^ b' ^ c ^ c' ^ d ^ e ^ f ^ g ^ h ^ i ^ j ^ k
+    a ^ a' ^ b ^ b' ^ c ^ c' ^ d ^ e ^ f ^ g ^ h ^ i ^ j ^ z ^ k
 with
     | No_Output(str) ->
         "Node " ^ (cwrap blue id) ^ " has no output" |> error |> print_endline;
