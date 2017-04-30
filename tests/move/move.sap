@@ -1,0 +1,16 @@
+type event = Move(d: dir)
+type dir = Up | Left | Down | Right
+
+interface node pointhehe(e: event) -> () with
+  (new_x, new_y) = @move(e.d, x, y);
+  x = 0 fby new_x;
+  y = 0 fby new_y
+
+node move(dir : dir, x: int, y: int) -> (x_ : int, y_ : int) with
+  (x_, y_) =
+    match dir with
+      | Left -> (sub(x, 20), y)
+      | Right -> (add(x, 20), y)
+      | Down -> (x, add(y, 20))
+      | Up -> (x, sub(y, 20))
+    end
