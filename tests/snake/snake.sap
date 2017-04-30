@@ -1,0 +1,66 @@
+type dir = Up | Left | Down | Right
+type event = Move | ChangeDir(d : dir)
+type delta = Delta(x: int, y: int)
+
+interface node snake_head(e : event) -> () with
+
+  (new_x, new_y, new_dir) = @move(dir, x, y) when Move(e) :: base on Move(e);
+  (new_x, new_y, new_dir) = @change_dir(dir, e.d, x, y) when ChangeDir(e) :: base on ChangeDir(e);
+  dir = Right fby new_dir;
+  x = 0 fby new_x;
+  y = 0 fby new_y
+
+interface node snake_node(delta : delta) -> () with
+  x = 0 fby delta.x;
+  y = 0 fby delta.y
+
+node move(dir: dir, x : int, y : int)
+      -> (new_x : int , new_y : int , new_dir: dir) with
+  (new_x, new_y, new_dir) =
+    match dir with
+      | Left -> (sub(x, node_size), y, dir)
+      | Right -> (add(x, node_size), y, dir)
+      | Down -> (x, add(y, node_size), dir)
+      | Up -> (x, sub(y, node_size), dir)
+    end
+
+node change_dir(dir : dir, wdir : dir, x : int, y :int)
+  -> (x : int, y : int, new_dir : dir) with
+  new_dir = match dir with
+    | Right -> @cright(wdir)
+    | Left -> @cleft(wdir)
+    | Down -> @cdown(wdir)
+    | Up -> @cup(wdir)
+  end
+
+node cright(d : dir) -> (next_dir: dir) with
+  next_dir = match d with
+               | Right -> d
+               | Up -> d
+               | Down -> d
+               | Left -> Right
+             end 
+
+node cleft(d : dir) -> (next_dir: dir) with
+  next_dir = match d with
+               | Right -> Left
+               | Up -> d
+               | Down -> d
+               | Left -> d
+             end 
+
+node cdown(d : dir) -> (next_dir: dir) with
+  next_dir = match d with
+               | Right -> d
+               | Up -> Down
+               | Down -> d
+               | Left -> d
+             end 
+
+node cup(d : dir) -> (next_dir: dir) with
+  next_dir = match d with
+               | Right -> d
+               | Up -> d
+               | Down -> Up
+               | Left -> d
+             end 
