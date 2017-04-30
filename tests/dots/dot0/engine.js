@@ -20,7 +20,7 @@ var point_node = new point().reset();
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     point_node.move();
-    draw_rect(point_node.x, point_node.y, 10, 10);
+    draw_rect(point_node.get_x(), point_node.get_y(), 10, 10);
     requestAnimationFrame(draw);
 }
 

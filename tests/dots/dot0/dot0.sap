@@ -1,0 +1,10 @@
+type event = Left | Right | Move
+
+interface node point(e : event) -> () with
+  new_speed = subu(speed, 1) when Left(e) :: base on Left(e);
+  new_speed = addu(speed, 1) when Right(e) :: base on Right(e);
+  new_speed = speed when Move(e) :: base on Move(e);
+  speed = 1 fby new_speed;
+  theta = 0 fby addu(theta, div(speed, 100));
+  x = 100 fby addu(mult(cos(theta), 80), 200);
+  y = 250 fby addu(mult(sin(theta), 80), 200)
