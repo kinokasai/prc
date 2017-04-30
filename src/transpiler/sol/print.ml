@@ -59,9 +59,8 @@ and string_of_inst = function
 and string_of_branch = function
 	| Branch(constr, inst) -> string_of_constr constr ^ ": " ^ string_of_instl inst
 
-and string_of_constr constr =
-	let paren = if BatList.is_empty constr.params then (fun str -> str) else wrap in
-	constr.id ^ paren (constr.params |> concat ", ")
+and string_of_constr constr_id =
+	constr_id 
 
 and string_of_val = function
   | Constr(id) -> id

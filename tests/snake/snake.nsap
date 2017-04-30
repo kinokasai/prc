@@ -3,6 +3,8 @@ type event = Move | MoveSecond(x_: int, y_:int) | ChangeDir(d_ : dir)
 
 interface node snake_node(e : event) -> () with
   t0 = merge e (ChangeDir(d_) -> d_ when ChangeDir(e));
+  # t0 = e.d_ when ChangeDir(e)
+  t0 = e.d_ when ChangeDir(e);
   t1 = cleft(t0) every _;
   t2 = cright(t0) every _;
   t3 = cup(t0) every _;

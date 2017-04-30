@@ -9,6 +9,7 @@ let int = digit+
 let float = digit+ ('.'digit*)?
 let ident = ['a'-'z'] ['a'-'z' 'A'-'Z' '0'-'9' '_']*
 let type_const = ['A'-'Z']['a'-'z' 'A'-'Z']*
+let comment = '#'([^ '\n' ]*)
 
 rule token = parse
     | white_ { token lexbuf }
@@ -23,6 +24,7 @@ rule token = parse
     | '}' { RBRACE }
     | '=' { EQUALS }
     | '_' { UNDERSCORE }
+    | comment { token lexbuf }
     | "type" { TYPE }
     | "node" { NODE }
     | "->" { RETURNS }

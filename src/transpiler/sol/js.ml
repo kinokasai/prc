@@ -80,12 +80,12 @@ let rec js_of_inst = function
       a ^ b ^ c ^ d
 
 and js_of_branch switch_id = function
-  | Branch(constr, inst) ->
+  | Branch(constr_id, inst) ->
     (*let _ = print_string (constr.id ^ "\n") in*)
-    let full_id = Smap.find constr.id !tidmap in
+    let full_id = Smap.find constr_id !tidmap in
     let case = "case " ^ full_id ^ ":" ^ incendl() in
-    let f = (fun vid -> "var " ^ vid ^ " = " ^ switch_id ^ "." ^ vid ^ ";") in
-    let constr_vars = List.map f constr.params |> concat (iendl()) in
+    (*let f = (fun vid -> "var " ^ vid ^ " = " ^ switch_id ^ "." ^ vid ^ ";") in
+    let constr_vars = List.map f constr.params |> concat (iendl()) in*)
     let inst = iendl() ^ js_of_seqinst inst ^ iendl() in
     let break = "break;" in
     let d = decindent() in
@@ -165,7 +165,9 @@ let rec js_of_machine = function
       | Some tid -> js_of_interface id tid in
     a ^ a' ^ b ^ b' ^ c ^ c' ^ d ^ e ^ f ^ g ^ h ^ i ^ j ^ k
 with
-    | No_Output(str) -> "Node " ^ (cwrap blue id) ^ " has no output" |> error
+    | No_Output(str) ->
+        "Node " ^ (cwrap blue id) ^ " has no output" |> error |> print_endline;
+        raise Unrecoverable
 
 and js_of_memory mem =
     List.map (fun vd -> "this." ^ (id_of_vardec vd) ^ " = undefined;") mem
@@ -202,7 +204,12 @@ let js_of_machine_list ml =
 let js_of_type_dec_list tdl =
     List.map js_of_type_dec tdl |> concat (iendl())
 
+let init_env () =
+    tidmap := Smap.add "True" "true" !tidmap;
+    tidmap := Smap.add "False" "false" !tidmap
+
 let js_of_ast : sol_ast -> string = fun ast ->
+    let _ = init_env () in
     let a = js_of_type_dec_list ast.tdl ^ iendl() in
     let b = js_of_machine_list ast.mdl ^ iendl() in
     a ^ b

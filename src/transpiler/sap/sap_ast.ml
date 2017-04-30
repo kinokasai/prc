@@ -12,12 +12,19 @@ type exp =
   | NodeCall of id * exp list
   | Value of value
   | Variable of id
-  | When of exp
+  | When of exp * constr
 
 and flow =
   { 
-    constr: constr;
+    constr: id;
     exp : exp;
+  }
+
+type clock =
+  {
+    on_clk : clock option;
+    constr_id : id option;
+    b_id : id option;
   }
 
 type lhs =
@@ -28,6 +35,7 @@ type equation =
   { 
     lhs: lhs;
     rhs: exp;
+    clk: clock;
   }
 
 type node =

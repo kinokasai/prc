@@ -76,7 +76,7 @@ branch_list:
     | bl = separated_list(PIPE, branch) { bl }
 
 branch:
-    | constr = constr COLON e = seq_inst{ Branch(constr, e) }
+    | constr = CONSTR COLON e = seq_inst{ Branch(constr, e) }
 
 /* This is definitely weird. Maybe only allow only empty constructors as values? */
 constr:

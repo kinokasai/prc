@@ -14,7 +14,7 @@ type exp =
   | Step of id * exp list
   | Variable of id
 
-type branch = Branch of constr * inst list
+type branch = Branch of id * inst list
 
 and inst =
   | Case of id * branch list

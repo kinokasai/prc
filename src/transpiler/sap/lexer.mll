@@ -21,16 +21,18 @@ rule token = parse
     | ',' { COMMA }
     | '|' { PIPE }
     | '=' { EQUALS }
-    | '_' { UNDERSCORE }
+    | '@' { AT }
     | "type" { TYPE }
     | "node" { NODE }
     | "->" { RETURNS }
     | "with" { WITH }
     | "when" { WHEN }
     | "merge" { MERGE }
+    | "match" { MATCH }
     | "fby" { FBY }
-    | "every" { EVERY }
+    | "end" { END }
     | "interface" { INTERFACE }
+    | "on" { ON }
     | comment { token lexbuf }
     | type_const as constr { CONSTR constr }
     | float as num { LITTERAL num}

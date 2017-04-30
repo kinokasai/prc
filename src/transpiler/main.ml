@@ -6,6 +6,10 @@ open Shared.Exceptions
 let compile_sol out_name ast =
     Sol.Compiler.compile out_name ast
 
+let compile_from_sol filename out_name =
+    Sol.Compiler.parse filename
+    |> compile_sol out_name
+
 let compile_sap filename out_name =
   Sap.Compiler.compile filename
   |> compile_sol out_name
@@ -22,7 +26,10 @@ let command =
     (fun out_name sol filename _ ->
         try
             let _ = Sys.command "mkdir -p build" in
-            compile_sap filename out_name
+            let compile = match sol with
+                | true -> compile_from_sol
+                | false -> compile_sap in
+            compile filename out_name
         with
           | Unrecoverable -> "Unrecoverable Error: exiting..." |> print_endline
           | e -> print_string(to_string(e) ^ get_backtrace())

@@ -3,9 +3,9 @@
   open Sap_ast
 %}
 
-%token SEMICOLON COLON EQUALS COMMA UNDERSCORE PIPE
+%token SEMICOLON COLON EQUALS COMMA PIPE
 %token LPAREN RPAREN
-%token TYPE NODE RETURNS FBY WITH WHEN MERGE EVERY INTERFACE
+%token TYPE NODE RETURNS FBY WITH WHEN MERGE INTERFACE ON MATCH END AT
 %token EOF
 %token <string> LITTERAL CONSTR
 %token <string> ID
@@ -16,6 +16,11 @@
 init:
   | tdl = type_dec_list nl = node_list EOF {{type_dec_list = tdl; node_list = nl}}
 
+clock:
+  | ck_id = ID {{on_clk = None; constr_id = None; b_id = None;}}
+  | ck_id = ID ON constr_id = CONSTR LPAREN b_id = ID RPAREN {{on_clk = None; constr_id = Some constr_id; b_id = Some b_id;}}
+  | LPAREN clk = clock RPAREN ON constr_id = CONSTR LPAREN b_id = ID RPAREN {{on_clk = Some clk; constr_id = Some constr_id; b_id = Some b_id}}
+
 constr:
     | id = CONSTR LPAREN idl = separated_list(COMMA, ID) RPAREN {{id; params=idl}}
     | id = CONSTR {{id; params=[]}}
@@ -24,26 +29,34 @@ eq_list:
   | eql = separated_list(SEMICOLON, eq = eq { eq }) { eql }
 
 eq:
-  | lhs = lhs EQUALS rhs = exp { {lhs; rhs} }
+  | lhs = lhs EQUALS rhs = exp { {lhs; rhs; clk = {on_clk = None; constr_id = None; b_id = None}} }
+  | lhs = lhs EQUALS rhs = exp COLON COLON clk = clock { {lhs; rhs; clk;}}
 
 exp_list:
   | expl = separated_list(COMMA, exp = exp { exp }) { expl }
 
 exp:
   | pre = value FBY next = exp { Fby(pre, next)}
-  | id = ID LPAREN expl = exp_list RPAREN EVERY UNDERSCORE { NodeCall(id, expl)}
+  | AT id = ID LPAREN expl = exp_list RPAREN{ NodeCall(id, expl)}
   | MERGE id = ID fl = flow_list { Merge(id, fl)}
   | id = ID LPAREN expl = exp_list RPAREN {Op(id, expl)}
   | LPAREN expl = separated_list(COMMA, exp) RPAREN { ExpPattern(expl)}
   | id = ID { Variable(id)}
   | vl = value { Value(vl) }
-  | exp = exp WHEN constr { When(exp) }
+  | exp = exp WHEN constr = constr { When(exp, constr) }
+  | MATCH id = ID WITH fl = match_list END{ Merge(id, fl) }
+
+match_list:
+  | fll = list(mfl = match_flow { mfl }) {fll}
+
+match_flow:
+  | PIPE constr = CONSTR RETURNS exp = exp{ {constr; exp} }
 
 flow_list:
   | fll = list(fl = flow { fl }) { fll }
 
 flow:
-  | LPAREN constr = constr RETURNS exp = exp RPAREN { {constr; exp} }
+  | LPAREN constr = CONSTR RETURNS exp = exp RPAREN { {constr; exp} }
 
 lhs:
   | lhs = ID {Id(lhs)}
@@ -66,9 +79,6 @@ type_dec:
 ty:
     | id = CONSTR LPAREN vdl = var_decs RPAREN { {id; vdl} }
     | id = CONSTR { {id; vdl = []} }
-
-value_list:
-  | vll = separated_list(COMMA, value) { vll }
 
 value:
   | constr = constr {Constr(constr)}

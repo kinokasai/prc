@@ -1,6 +1,9 @@
 open Sap_ast
 open Shared.Exceptions
 
+let map = BatList.map
+let flatten = BatList.flatten
+
 let rec assert_flat_lhs lhsl =
   let is_flat = (function Id(_) -> true | _ -> false) in
   lhsl |> List.fold_left (fun acc elt -> acc && is_flat elt) true
@@ -20,7 +23,7 @@ and expect_cexp exp =
 
 and expect_exp exp =
   match exp with
-    | When(exp) -> expect_exp exp
+    | When(exp, _) -> expect_exp exp
     | Op(_, expl) -> expl |> List.fold_left (fun acc exp -> acc && expect_exp exp) true
     | Variable(_) -> true
     | Value(_) -> true
@@ -59,3 +62,35 @@ let remove_if_all cmp l =
   in
   remove_rec cmp l []
 
+let str_from_list f l =
+  let f = (fun str elt -> str ^ ", " ^ (f elt)) in
+  l |> List.fold_left f "List:"
+
+(* First and only *)
+let fily ?print:(print=BatPervasives.dump) l =
+  match List.length l with
+    | 1 -> List.hd l
+    | _ -> raise (Failure ("Not monome list: " ^ (l |> str_from_list print)))
+
+let rec get_ids_from_lhs = function
+  | Id(id) -> [id]
+  | Pattern(lhsl) -> lhsl |> map (get_ids_from_lhs) |> flatten
+
+let rec get_ids_eql eql =
+  eql |> map (fun eq -> eq.lhs) |> map get_ids_from_lhs |> flatten
+
+let rec get_fbys fbyl eql =
+  match eql with
+    | [] -> fbyl
+    | eq::xs ->
+      let fbyl = match eq.rhs with
+        | Fby(_,_) -> get_ids_from_lhs eq.lhs |> (@) fbyl 
+        | _ -> fbyl in
+      get_fbys fbyl xs
+
+let times_list l i =
+  let rec f newl l i =
+    match i with
+      | 0 -> newl
+      | _ -> f (l::newl) l (i-1) in
+  f [[]] l i

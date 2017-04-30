@@ -77,7 +77,7 @@ module Dot = Graph.Graphviz.Dot(struct
    let edge_attributes _ = []
    let default_edge_attributes _ = []
    let get_subgraph _ = None
-   let vertex_attributes _ = [] (*[`Shape `Box]*)
+   let vertex_attributes _ = []
    let vertex_name v = v
    let default_vertex_attributes _ = []
   let graph_attributes _ = []
@@ -85,11 +85,16 @@ end)
 
 module Dfs = Traverse.Dfs(G)
 
+let add_edge_if_dif g v1 v2 =
+  match v1 with
+  | x when String.equal v1 v2 -> g
+  | _ -> G.add_edge g v1 v2
+
 let rev_edge g vert =
   let predl = G.pred g vert in
   let edgel = G.pred_e g vert in
   let rm_edge = (fun graph edge -> G.remove_edge_e graph edge) in
-  let add_edge = (fun graph v -> G.add_edge graph vert v) in
+  let add_edge = (fun graph v -> add_edge_if_dif graph vert v) in
   let g = edgel |> fold_left rm_edge g in
   predl |> fold_left add_edge g
 
@@ -104,7 +109,8 @@ let rec get_deps depl = function
   | ExpPattern(expl)
   | NodeCall(_, expl) -> expl |> map (get_deps depl) |> flatten
   | Merge(_, flwl) -> flwl |> map (fun flw -> flw.exp) |> map (get_deps depl) |> flatten
-  | When(exp) -> get_deps depl exp
+  (* The constructor has only one argument *)
+  | When(exp, constr) -> get_deps (hd constr.params::depl) exp
   | Variable(id) -> id::depl
   | Fby(_, exp) -> get_deps depl exp
   | _ -> depl
@@ -163,9 +169,9 @@ let schedule_node eql node_id =
     let file = "build/" ^ node_id ^ ".dot" |> open_out_bin in
     Dot.output_graph file g;
     causality_check g;
-    let order = !(get_order g)@get_fbys [] eql in
-    let f = (fun id -> Hashtbl.find map id) in
-    let eql = order |> List.map f |> unique in
+    let order = !(get_order g) in
+    let f = (fun acc id -> acc@Hashtbl.find_all map id) in
+    let eql = order |> fold_left f [] |> unique in
     eql
   with
     | CyclicDependencyGraph(_) -> raise (CyclicDependencyGraph (node_id |> cwrap blue))

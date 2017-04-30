@@ -2,12 +2,16 @@ open Sap_ast
 open BatList
 open Shared.Exceptions
 open Shared.Colors
+open Utils
 
 exception Expected_CExp of string
 
 let nidl = ref [];;
 let inst_list = ref [];;
 let mem_list = ref [];;
+let var_list = ref [];;
+
+let get = BatOption.get
 
 let rec get_ids_from_lhs = function
   | Id(id) -> [id]
@@ -29,6 +33,9 @@ let get_id_lhs = function
   | Id(id) -> id
   | _ -> raise Ill_Constructed_Ast
 
+let get_id_from_var_dec vd =
+  Shared.Types.(vd.var_id)
+
 let make_undef_var_dec id = 
   Shared.Types.{var_id = id; type_id = "undefined"}
 
@@ -37,10 +44,11 @@ let make_mem id vl =
   {var_dec; value = vl}
 
 let add_to_mem eq =
-  let id = get_id_lhs eq.lhs in
+  let idl = get_ids_from_lhs eq.lhs in
   match eq.rhs with
-    | Fby(pre, next) -> mem_list := make_mem id pre ::!mem_list
-    | _ -> ()
+    (* idl should only have one element in case of Fby *)
+    | Fby(pre, next) -> mem_list := make_mem (hd idl) pre ::!mem_list
+    | _ -> var_list := !var_list@idl
 
 let explore_mem_list eql =
   List.iter add_to_mem eql
@@ -65,7 +73,7 @@ let list_node_ids ndl =
   List.iter (fun node -> nidl := node.id::(!nidl)) ndl
 
 let mem_id id mem_list =
-  let idl = List.map (fun mem -> mem.var_dec.var_id) mem_list in
+  let idl = List.map (fun mem -> Shared.Types.(mem.var_dec.var_id)) mem_list in
   mem id idl
 
 let get_undeclared_id_list dec_idl idl =
@@ -80,6 +88,16 @@ let change_mem id =
 let id_of_vardec vd =
   Shared.Types.(vd.var_id)
 
+let rec ctrl_wrap inst clk =
+  match clk.b_id with
+    | None -> inst
+    | Some _ ->
+      let branch = Sol.Ast.Branch(get clk.constr_id, [inst]) in
+      let inst = Sol.Ast.Case(get clk.b_id, [branch]) in
+      match clk.on_clk with
+        | None -> inst
+        | Some clk -> ctrl_wrap inst clk
+
 let make_step avd rvd vd instl =
   Sol.Ast.{ avd; rvd; vd; instl}
 
@@ -90,7 +108,7 @@ let rec make_id_list = function
 let rec make_reset () =
   let inst_res = List.map (fun inst -> Sol.Ast.(Reset(inst.mach_id))) !inst_list in
   let mem_reset = List.map
-    (fun mem -> Sol.Ast.StateAssign(mem.var_dec.var_id, sol_of_val mem.value)) !mem_list in
+    (fun mem -> Sol.Ast.StateAssign(Shared.Types.(mem.var_dec.var_id), sol_of_val mem.value)) !mem_list in
     inst_res@mem_reset
 
 and sol_of_ast ast =
@@ -112,14 +130,16 @@ and sol_of_eq_list eql =
 
 and sol_of_eq eq =
 try
-  let id = get_id_lhs eq.lhs in
   let idl = make_id_list eq.lhs in
-  match eq.rhs with
-  (* This is kinda hackish *)
-    | Fby(pre, next) -> Sol.Ast.StateAssign(id, sol_of_exp next)
-    | NodeCall(id, expl) -> Sol.Ast.VarAssign(idl, Sol.Ast.Step(id, sol_of_exp_list expl))
-    | Merge(_, _) -> sol_of_cexp id eq.rhs
-    | _ -> Sol.Ast.VarAssign([id], sol_of_exp eq.rhs)
+
+  let inst = match eq.rhs with
+    (* This is kinda hackish *)
+      | Fby(pre, next) -> Sol.Ast.StateAssign(fily idl, sol_of_exp next)
+      | NodeCall(id, expl) -> Sol.Ast.VarAssign(idl, Sol.Ast.Step(id, sol_of_exp_list expl))
+      | Merge(_, _) -> sol_of_cexp (fily idl) eq.rhs
+      | _ -> Sol.Ast.VarAssign(idl, sol_of_exp eq.rhs)
+  in
+    ctrl_wrap inst eq.clk
 with
   | Expected_CExp(exp) ->
     let str = Print_sap.print_eq eq |> cwrap blue |> quote |> (^) "Expected Control exp in eq: " in
@@ -136,7 +156,7 @@ and sol_of_exp exp =
     | Value(vl) -> sol_of_val vl
     | Variable(id) when mem_id id !mem_list -> Sol.Ast.State(id)
     | Variable(id) -> Sol.Ast.Variable(id)
-    | When(exp) -> sol_of_exp exp
+    | When(exp, _) -> sol_of_exp exp
     | _ -> exp |> Print_sap.print_exp |> print_endline; raise Ill_Constructed_Ast
 
 and sol_of_flow_list var_id fll =
@@ -157,13 +177,14 @@ and sol_of_node node =
 try
   let _ = inst_list := [] in
   let _ = mem_list := [] in
+  let _ = var_list := [] in
   let _ = explore_mem_list node.eql in
   let _ = explore_inst_list node.eql in
   let interface = if node.interface then get_interface_type node.in_vdl else None in
   let id = node.id in
-  let dec_idl = List.map id_of_vardec node.in_vdl in
-  let undec_idl = get_undeclared_id_list dec_idl (get_id_list node.eql) in
-  let step_var_decs = List.map make_undef_var_dec undec_idl in
+  let in_idl = node.in_vdl |> map get_id_from_var_dec in
+  let f = (fun id -> not (mem id in_idl)) in
+  let step_var_decs = !var_list |> filter f |> map make_undef_var_dec in
   let step = make_step node.in_vdl node.out_vdl step_var_decs (sol_of_eq_list node.eql) in
   let reset = make_reset () in
   let memories = List.map (fun mem -> mem.var_dec) !mem_list in
@@ -174,4 +195,4 @@ with
 
 and sol_of_val = function
     | Litteral(lit) -> Sol.Ast.Value(Sol.Ast.Litteral(lit))
-    | Constr(constr) -> Sol.Ast.Value(Sol.Ast.Constr(constr.id))
+    | Constr(constr) -> Sol.Ast.Value(Sol.Ast.Constr(Shared.Types.(constr.id)))

@@ -34,6 +34,7 @@ try
   let text = Js.js_of_ast ast in
   Core.Std.Out_channel.write_all filename ~data:text
 with
+  | Unrecoverable -> raise Unrecoverable
   | e -> print_string(to_string(e) ^ get_backtrace()) |> raise Unrecoverable
 
 let parse_and_compile filename out_name =

@@ -26,7 +26,11 @@ let parse filename =
   let input = File.open_in filename in
   let filebuf = Lexing.from_channel input in
   try
-    Parser.init Lexer.token filebuf
+    let ast = Parser.init Lexer.token filebuf in
+    let text = ast |> Print_sap.print_ast in
+    let name = build filename ".sap" in
+    Out_channel.write_all name ~data:text;
+    ast
   with
     | Parser.Error ->
         (Printf.eprintf "At offset %d: syntax error on token: \"%s\"!\n%s\n"
@@ -73,4 +77,4 @@ with
     | e -> to_string(e) ^ get_backtrace() |> print_endline |> exit 4
 
 let compile filename =
-  parse filename |> schedule filename |> normal_of_ast filename |> normal_check |> sol_of_ast filename
+  parse filename |> normal_of_ast filename |> normal_check |> schedule filename |> sol_of_ast filename
