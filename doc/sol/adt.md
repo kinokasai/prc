@@ -1,32 +1,41 @@
+
+### Algebraic Data Types
+
 Algebraic Data Types exhibit some properties:
+
 * Composite: Definition by cases - each case is composed into a single type
 * Closed: A finite set of cases
 
 
 The simplest ADT is Haskell's Boolean.
 
-```haskell
+\lstset{language=Haskell}
+
+\code
 data Boolean = True | False
-```
+\end_code
 
 Here, a variable of type `Boolean` has to be either `True` or `False`.
 However, a variant type can also contain inner variables.
 
-```haskell
+\lstset{language=SOL}
+
+\code
 type event = Nothing | GainPoints(amount: int)
-```
+\end_code
 
 A variable of type `event` will then be of type `Nothing` or `GainPoints` based on what happened in the game.
 
 To access a fieled contained in a variant type, we use a syntax similar to deconstructive pattern matching in ML languages.
 
-```haskell
+
+\code
 step(e : event) returns () = var in
 case (e) {
   Nothing: {- We do nothing-} |
-  GainPoints(amount): state(points) = state(points) + amount
+  GainPoints: state(points) = state(points) + e.amount
   }
-```
+\end_code
 
 #### Syntax
 \include sol/adt_grammar.tex
@@ -43,7 +52,8 @@ as arguments those variables in order.
 We use object litterals with a bit set to the enumerated type corresponding.
 For example, the aforementioned `event` type will become:
 
-```javascript
+\lstset{language=Javascript}
+\code
 var event_enum = Object.freeze({
   Nothing: 1,
   GainPoints: 2
@@ -58,8 +68,10 @@ event_type.Nothing = function() {
 event_type.GainPoints = function(amount) {
   return {id: event_enum.GainPoints, amount:amount}
 }
-```
+\end_code
 
 #### Formal translation
+
+A formal type translation is given as Figure \ref{Nice}
 
 \include sol/adt_translation.tex

@@ -1,0 +1,22 @@
+\begin{figure}
+\begin{grammar}
+<exp> ::= <exp> \verb|when| $C$($id$)
+\alt $op$(<exp>, ..., <exp>)
+\alt $id$
+\alt $value$
+
+<control_exp> ::=
+\verb|merge| $id$ ($C$ \verb|->| <control_exp>) ... ($C$ \verb|->| <control_exp>)
+\alt <exp>
+
+<eq> ::= $x$ = <control_exp>
+\alt $x$ = $value$ \verb|fby| <exp>
+\alt ($x$, ..., $x$) = ($f$(<exp>, ..., <exp>))
+
+<eql> ::= <eq> ; <eq> \alt <eql>
+
+\end{grammar}
+\hrulefill
+\caption{Normalized SAP Grammar}
+\label{NsapGrammar}
+\end{figure}

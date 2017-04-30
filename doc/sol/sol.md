@@ -1,70 +1,24 @@
----
-header-includes:
-  - \usepackage{syntax}
-  - \usepackage{amsmath}
----
-## SOL
 
-As our goal is to compile down to a more imperative language,
-we'll use the most simple form of an Object-Oriented language.
-Please keep in mind that we are only interested in the capability
-to encapsulate a piece of memory managed exclusively by the methods
-of the class.
+#Simple Object Language
+
+As we aim to compile down to an imperative language, we need to represent nodes
+in a more imperative fashion as an intermediate representation.
+As such, we introduce *Simple Object Language* (Sol), which relative
+simplicity allows to represent stateful computation.
+
+A node can be represented as a class definition with instances variables and two
+methods `step` and `reset`. The `step` methods inherits its signature from the node
+it was generated from, and it implements a single step of the node.
+The `reset` method is parameterless, and is in charge of instancing state variables.
+
+A program is made of sequence of global machine and type declarations (dec).
+A machine (f) defines a set of memories, a set of instances for objects used inside
+the body of the methods `step` or `reset`, and these two methods.
 
 \include sol/grammar.tex
 
-### ADT
+For a better intuition, we'll show how such a language compiles to Javascript.
+
+\include sol/sol_translation.md
 
 \include sol/adt.md
-
-### Interface
-
-Our model concentrates on the implementation of an `interface` node -
-or machine - that will be used by the game engine's javascript implementation.
-Such a node will typically take an unique parameter, in the form of an `event` variable.
-This variable will be an instance of an ADT type.
-
-###Interface
-
-```haskell
-type event = Move | ChangeDir(x: int, y: int)
-
-machine main =
-  interface event
-  memory
-  instances
-  reset () = skip
-  step(e : event) returns (x: int, y: int) =
-    var in
-```
-
-Then, for each variant of the `event` type, we add a method to the prototype of the interfaced node
-
-*Formalism will be there*
-
-```javascript
-function main() {}
-  
-main.prototype.reset = function() {}
-
-main.prototype.step = function(e) {
-  return this;
-}
-main.prototype.move = function () {
-  this.step(event_type.Move());
-  return this;
-}
-
-main.prototype.changeDir = function (x, y) {
-  this.step(event_type.ChangeDir(x, y));
-  return this;
-}
-
-```
-which allows the engine's code write a simple function call depending on the event
-one is willing to trigger.
-
-```javascript
-main.move();
-main.changeDir(10, 10);
-```

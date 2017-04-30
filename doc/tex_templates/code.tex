@@ -1,0 +1,73 @@
+\setmonofont{FantasqueSansMono Nerd Font}
+
+\makeatletter
+
+\patchcmd{\lsthk@SelectCharTable}{%
+  \lst@ifbreaklines\lst@Def{`)}{\lst@breakProcessOther)}\fi
+}{%
+}{
+}{
+}
+
+\makeatother
+
+\newcommand{\CodeSymbol}[1]{\textcolor{cyan!50!black}{#1}}
+\newcommand{\CodeSymbolPurple}[1]{\textcolor{purple}{#1}}
+
+\lstset{
+basicstyle=\footnotesize\ttfamily\bfseries\color{red},
+keywordstyle=\color{green!50!black},
+keywordstyle=[2]\color{red!50!black},
+keywordstyle=[4]\color{red},
+stringstyle=\color{yellow!80!black},
+commentstyle=\itshape\color{gray!50!white},
+identifierstyle=\color{cyan!50!black},
+literate={\{}{{\CodeSymbol{\{}}}1
+               {\}}{{\CodeSymbol{\}}}}1
+               {(}{{\CodeSymbol{(}}}1
+               {)}{{\CodeSymbol{)}}}1
+               {=}{{\CodeSymbol{=}}}1
+               {;}{{\CodeSymbol{;}}}1
+               {.}{{\CodeSymbol{.}}}1
+               {:}{{\CodeSymbol{:}}}1
+               {|}{{\CodeSymbol{|}}}1
+               {,}{{\CodeSymbol{,}}}1
+               {-}{{\CodeSymbol{-}}}1
+               {1}{{\CodeSymbol{1}}}1
+               {2}{{\CodeSymbol{2}}}1
+               {3}{{\CodeSymbol{3}}}1
+               {4}{{\CodeSymbol{4}}}1
+               {5}{{\CodeSymbol{5}}}1
+               {6}{{\CodeSymbol{6}}}1
+               {7}{{\CodeSymbol{7}}}1
+               {8}{{\CodeSymbol{8}}}1
+               {9}{{\CodeSymbol{9}}}1
+               {0}{{\CodeSymbol{0}}}1
+               {->}{{\CodeSymbol{->}}}1
+}
+
+\lstdefinelanguage{SOL}{
+keywords={},
+morestring=[b]{"},
+morestring=[b]{'},
+morecomment=[l]{//},
+morecomment=[s]{/*}{*/},
+morecomment=[s][\color{black}]{<}{>}
+}
+
+\lstdefinelanguage{JavaScript}{
+morekeywords={break,case,catch,continue,debugger,default,delete,do,else,finally,
+  for,function,if,in,instanceof,new,return,switch,this,throw,try,typeof,var,void,while, True, False},
+morekeywords=[2]{class,enum,export,extends,import,super,implements,interface,let,package,private,protected,public,static,yield},
+morekeywords=[3]{prototype},
+morekeywords=[4]{True, False}
+morestring=[b]{"},
+morestring=[b]{'},
+morecomment=[l]{//},
+morecomment=[s]{/*}{*/},
+morecomment=[s][\color{black}]{<}{>}
+}
+
+
+\lstset{basicstyle=\footnotesize\ttfamily,breaklines=true}
+\lstset{escapeinside={(*@}{@*)}}
