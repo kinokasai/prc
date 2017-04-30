@@ -1,0 +1,6 @@
+node one(x: int) -> (x: int, y : int) with
+  y = plus(x, 1)
+
+node test() -> (x : int) with
+  x = 3;
+  (a, b) = @one(x, y)

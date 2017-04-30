@@ -1,0 +1,7 @@
+type what = Nothing | None | Void
+
+node test() -> (x: int) with
+  half = None :: base;
+  a = 2 when Nothing(half) :: base on Nothing(half);
+  b = None when None(half) :: base on None(half);
+  c = b when Void(b) :: (base on None(half)) on Void(b)

@@ -1,0 +1,5 @@
+node id(x: int) -> (x : int) with
+
+node simple_fby(a : int) -> (x: int) with
+  y = 1 fby 2;
+  x = @id(2 fby 3)

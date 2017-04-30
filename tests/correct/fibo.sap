@@ -1,0 +1,3 @@
+node fibonacci() -> (fib : int) with
+  n = 1 fby plus(n, 1);
+  fib = 0 fby n

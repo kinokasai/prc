@@ -1,0 +1,5 @@
+node dup(x: int) -> (x: int, x: int) with
+  
+node pattern(x: int) -> (x: int) with
+  (a, b) = (1, 2);
+  (x, y) = @dup(1)

@@ -1,0 +1,2 @@
+node fby_example() -> (x: int) with
+  x = 2 fby plus(x, 1)

@@ -1,0 +1,6 @@
+node test() -> (x: int) with
+  y = True;
+  x = match y with
+        | True -> 1
+        | False -> 2
+      end

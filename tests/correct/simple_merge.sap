@@ -1,0 +1,5 @@
+node simple_merge() -> (x: int) with
+  a = True;
+  t1 = 2 when True(a);
+  t2 = 3 when False(a);
+  x = merge a (True -> t1) (False -> t2)

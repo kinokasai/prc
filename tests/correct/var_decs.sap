@@ -1,0 +1,5 @@
+node var_dec(a : int) -> (x: int) with
+  a = 1;
+  var_dec = 2;
+  fby_var = 3 fby 3;
+  x = 4

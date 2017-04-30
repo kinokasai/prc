@@ -1,0 +1,7 @@
+node complex_demux(a : int) -> (x : int) with
+  (a, (b, c)) = (2, (3, 4));
+  (x, y) = @dup(a, b);
+  f = True;
+  (d, e) = merge f
+    (True -> (2, 3))
+    (False -> (4, 5))

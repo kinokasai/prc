@@ -1,8 +1,8 @@
 type what = Wow
 
-node test() -> () with
+node test() -> (x: int) with
   a = whatev(x);
-  z = 3 fby plus(z, 1);
+  z = 3 fby plus(b, 1);
   b = 2 fby 1;
   x = plus(z, y);
   (c, d) = (x, y);

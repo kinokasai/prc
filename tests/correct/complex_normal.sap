@@ -1,0 +1,3 @@
+node normal(a: int) -> (x: int) with
+  z = True;
+  (a, (b, (c, d))) = (2, (3, (((merge z (True -> (4, 5)) (False -> (6, 8 fby 1)))))))

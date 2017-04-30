@@ -1,0 +1,9 @@
+type color = Black | White
+
+node merges() -> (x : int) with
+  c = Black;
+  b = True;
+  x = merge c (White ->
+                  merge b (True -> 1)
+                          (False -> 2))
+               (Black -> 3)

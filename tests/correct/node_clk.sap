@@ -1,0 +1,7 @@
+node one(x: int) -> (a : int) with
+  b = True;
+  a = 3 when True(b) :: base on True(b)
+
+node main() -> (x : int) with
+  y = 3 :: base;
+  x = @one(y) :: base

@@ -1,0 +1,5 @@
+
+node complex_fby(a: int) -> (x: int) with
+  x = True fby not(x);
+  y = (1 fby 2) when True(x) :: base on True(x);
+  c = merge x (True -> 1 fby 2 when True(x)) (False -> 2 when False(x))

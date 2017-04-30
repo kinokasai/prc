@@ -1,8 +1,11 @@
-type num = One | Zero
+type num = One | Zero | Two
 type dir = Up
 
 node what() -> (x: int) with
-  n = One;
-  d = Up;
+  x = One :: base;
+  a = Two when One(x) :: base on One(x);
+  b = 3 when Two(a) :: base on Two(a);
+  n = One :: base;
+  d = Up when One(a) :: base on One(a);
   x = merge n (One -> merge d (Up -> 3))
-              (Zero -> 2)
+              (Zero -> 2) :: base
