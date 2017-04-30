@@ -1,0 +1,4 @@
+type event = None
+
+interface node getter(e : event) -> () with
+  x = 1 fby 2
