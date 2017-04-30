@@ -1,0 +1,2 @@
+node simple_when(b : bool) -> (y : int) with
+  y = b when True(b)

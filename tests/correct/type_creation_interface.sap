@@ -1,0 +1,4 @@
+type action = Add(n: int, x: int) | Nothing
+
+interface node test(a : action) -> (x: int) with
+  x = merge a (Add -> add(a.n, a.x)) (Nothing -> n)

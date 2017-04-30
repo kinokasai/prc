@@ -1,0 +1,2 @@
+node edge(c : bool) -> (b : bool) with
+  b = and(c, not(False fby c))

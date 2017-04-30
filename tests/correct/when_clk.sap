@@ -1,0 +1,3 @@
+node simple_when(b : bool) -> (y : int) with
+  a = 2;
+  y = b when True(b) :: base on True(b)

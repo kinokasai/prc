@@ -1,0 +1,3 @@
+node maybe() -> (x: int) with
+  a = True fby not(a);
+  x = 3 when True(a) :: base on True(a);
