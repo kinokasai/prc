@@ -1,0 +1,3 @@
+node condact(c: bool, i : int) -> (o : int) with
+  o = merge c (True -> @count(i when True(c)))
+              (False -> (0 fby o) when False(c)) :: base
