@@ -29,13 +29,15 @@ let parse filename =
     print_string str |> raise Unrecoverable
   | e -> print_string(to_string(e) ^ get_backtrace()) |> raise Unrecoverable
 
-let compile filename ast =
+let compile filename out_name ast =
 try
+  let name = Helpers.build filename ".js" in
   let text = Js.js_of_ast ast in
-  Core.Std.Out_channel.write_all filename ~data:text
+  Core.Std.Out_channel.write_all name ~data:text;
+  Core.Std.Out_channel.write_all out_name ~data:text
 with
   | Unrecoverable -> raise Unrecoverable
   | e -> print_string(to_string(e) ^ get_backtrace()) |> raise Unrecoverable
 
 let parse_and_compile filename out_name =
-  parse filename |> compile out_name
+  parse filename |> compile filename out_name

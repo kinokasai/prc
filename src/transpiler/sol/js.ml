@@ -5,6 +5,7 @@ open Helpers
 open Shared.Exceptions
 open Shared.Colors
 open List
+open Print
 
 exception Empty_Id_List
 
@@ -102,7 +103,8 @@ let js_of_vardecs_id vds =
     List.map id_of_vardec vds |> concat ", "
 
 let js_of_vardecs vds =
-    List.map (fun vd -> "var " ^ (id_of_vardec vd) ^ " = undefined;") vds
+    vds |> BatList.unique
+        |> List.map (fun vd -> "var " ^ (id_of_vardec vd) ^ " = undefined;")
         |> concat (iendl())
 
 let js_of_out_vd meml vd =
@@ -184,13 +186,14 @@ let rec js_of_machine = function
     let h = "}" ^ iendl() ^ iendl() in
     let i = id ^ ".prototype." ^ js_of_step is_interface memory step in
     let j = "}" ^ iendl() in
-    let z = match deltas with
-      | None -> ""
-      | Some deltas -> js_of_deltas id deltas in
     let k = match interface with
       | None -> ""
-      | Some tid -> js_of_interface id tid in
-    a ^ a' ^ b ^ b' ^ c ^ c' ^ d ^ e ^ f ^ g ^ h ^ i ^ j ^ z ^ k
+      | Some tid ->
+         let getters =  match deltas with
+            | None -> ""
+            | Some deltas -> js_of_deltas id deltas in
+      getters ^ js_of_interface id tid in
+    a ^ a' ^ b ^ b' ^ c ^ c' ^ d ^ e ^ f ^ g ^ h ^ i ^ j ^ k
 with
     | No_Output(str) ->
         "Node " ^ (cwrap blue id) ^ " has no output" |> error |> print_endline;
@@ -201,11 +204,11 @@ and js_of_memory mem =
         |> concat (iendl())
 
 and js_of_instances inst =
-    List.map js_of_machdec inst |> concat (iendl())
+    inst |> List.map js_of_machdec |> concat (iendl())
 
 and js_of_reset rst instances =
-    let code = (fun inst -> "this." ^ (id_of_machdec inst) ^ ".reset();") in
-    let a = List.map code instances |> concat (iendl()) in
+    let code = (fun id -> "this." ^ id ^ ".reset();") in
+    let a = instances |> map id_of_machdec |> map code |> concat (iendl()) in
     let a' = if empty a then "" else iendl() in
     let b = js_of_seqinst rst ^ iendl() in
     let c = "return this;" in

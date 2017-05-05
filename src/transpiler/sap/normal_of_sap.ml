@@ -84,7 +84,7 @@ and nm_of_exp clk exp =
     (* You should replace the nodecall *)
     | NodeCall(nid, expl) -> 
       let id = new_id() in(*NodeCall(id, expl |> map (nm_of_exp clk))*)
-      let eq = {lhs= Id(id); rhs = NodeCall(nid, expl); clk} in
+      let eq = {lhs= Id(id); rhs = NodeCall(nid, expl |> map (nm_of_exp clk)); clk} in
       let _ = eqfbyl := eq::!eqfbyl in
       let _ = replaced := Some id in
         Variable(id)

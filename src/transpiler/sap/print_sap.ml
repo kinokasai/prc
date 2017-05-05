@@ -48,8 +48,8 @@ and print_eq eq =
   print_lhs eq.lhs
     ^ " = "
     ^ print_exp eq.rhs
-    ^ " :: "
-    ^ print_clk eq.clk
+    (*^ " :: "
+    ^ print_clk eq.clk*)
 
 and print_exp = function
   | ExpPattern(expl) ->

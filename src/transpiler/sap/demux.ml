@@ -19,6 +19,10 @@ let get_lhsl = function
   | Pattern(lhsl) -> lhsl
   | _ -> raise ExpectedPatternLhs
 
+let get_lhs = function
+  | Id(id) -> [Id(id)]
+  | _ -> raise ExpectedSingle
+
 let at i l =
   BatList.at l i
 
@@ -65,8 +69,10 @@ and get_expl exp =
 
 let demux eq =
 try
-  let lhsl = get_lhsl eq.lhs in
   let expl = get_expl eq.rhs in
+  let lhsl = match length expl with
+    | 1 -> get_lhs eq.lhs
+    | _ -> get_lhsl eq.lhs in
   let clk = eq.clk in
   let f = (fun lhs exp -> {lhs; rhs = exp; clk}) in
   map2 f lhsl expl

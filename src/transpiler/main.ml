@@ -3,16 +3,16 @@ open Batteries
 open Printexc
 open Shared.Exceptions
 
-let compile_sol out_name ast =
-    Sol.Compiler.compile out_name ast
+let compile_sol filename out_name ast =
+    Sol.Compiler.compile filename out_name ast
 
 let compile_from_sol filename out_name =
     Sol.Compiler.parse filename
-    |> compile_sol out_name
+    |> compile_sol filename out_name
 
 let compile_sap filename out_name =
   Sap.Compiler.compile filename
-  |> compile_sol out_name
+  |> compile_sol filename out_name
 
 let command =
     Command.basic
@@ -32,7 +32,7 @@ let command =
             compile filename out_name
         with
           | Unrecoverable -> "Unrecoverable Error: exiting..." |> print_endline
-          | e -> print_string(to_string(e) ^ get_backtrace())
+          | e -> print_string(to_string(e) ^ get_backtrace()); exit 4
     )
 
 let _ =
