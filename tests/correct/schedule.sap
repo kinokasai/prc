@@ -1,7 +1,5 @@
-type what = Wow
-
-node test() -> (x: int) with
-  a = whatev(x);
+node example() -> (x: int) with
+  a = @node_call(x);
   z = 3 fby plus(b, 1);
   b = 2 fby 1;
   x = plus(z, y);

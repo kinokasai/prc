@@ -1,12 +1,13 @@
-type bool = True | False
+type bool = Whatev | Not
 
 machine huh =
   memory
   instances
   reset() = skip
-  step () returns () =
-    var in
+  step () returns (x: int) =
+    var b : int in
+    b = Not;
   case(b) {
-    True: x = 1 |
-    False: x = 2
+    Whatev: x = 1 |
+    Not: x = 2
   }

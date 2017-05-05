@@ -2,4 +2,7 @@ node clk() -> (a: int) with
   half = True fby not(half) :: base;
   y = 3 when True(half) :: base on True(half);
   x = 2 when False(half) :: base on False(half);
-  a = merge half (True -> y) (False -> x) :: base
+  a = match half with
+        | True -> y
+        | False -> x
+      end

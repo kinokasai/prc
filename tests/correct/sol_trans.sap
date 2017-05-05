@@ -1,0 +1,5 @@
+node example(x: int) -> (y: int) with
+  a = True fby not(a);
+  b = @id(a);
+  c = 1 when True(a) :: base on True(a);
+  y = plus(3, 2)

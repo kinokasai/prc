@@ -1,0 +1,3 @@
+node small(a: int) -> (x: int) with
+  b = @node_call(a);
+  x = 0 fby b

@@ -1,4 +1,4 @@
 type action = Add | Nothing
 
-node test(a : action, a : int, b : int) -> (x: int) with
-  x = merge a (Add -> add(a, b)) (Nothing -> a)
+node test(to_do : action, a : int, b : int) -> (x: int) with
+  x = merge to_do (Add -> add(a, b)) (Nothing -> a)

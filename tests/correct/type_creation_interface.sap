@@ -1,4 +1,5 @@
-type action = Add(n: int, x: int) | Nothing
+type action = Add(n: int, x: int) | Id(n: int)
 
 interface node test(a : action) -> (x: int) with
-  x = merge a (Add -> add(a.n, a.x)) (Nothing -> n)
+  x = 0 fby y;
+  y = merge a (Add -> add(a.n, a.x)) (Id -> a.n)
