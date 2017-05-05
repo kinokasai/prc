@@ -1,0 +1,259 @@
+\documentclass[ignorenonframetext,]{beamer}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{: }
+\setbeamercolor{caption name}{fg=normal text.fg}
+
+\beamertemplatenavigationsymbolsempty
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\newif\ifbibliography
+\hypersetup{
+            pdftitle={Synchronous Retrogames in HTML5},
+            pdfauthor={Alexandre Doussot},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+
+% Prevent slide breaks in the middle of a paragraph:
+\widowpenalties 1 10000
+\raggedbottom
+
+\AtBeginPart{
+  \let\insertpartnumber\relax
+  \let\partname\relax
+  \frame{\partpage}
+}
+\AtBeginSection{
+  \ifbibliography
+  \else
+    \let\insertsectionnumber\relax
+    \let\sectionname\relax
+    \frame{\sectionpage}
+  \fi
+}
+\AtBeginSubsection{
+  \let\insertsubsectionnumber\relax
+  \let\subsectionname\relax
+  \frame{\subsectionpage}
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+\usepackage{tikz}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{syntax}
+\usepackage{fancyvrb}
+\usepackage{booktabs}
+
+\title{Synchronous Retrogames in HTML5}
+\author{Alexandre Doussot}
+\institute{Université Pierre et Marie Curie}
+\date{}
+
+\usetheme[progressbar=frametitle]{metropolis}
+
+% ---------------------------------
+% \setmonofont{FantasqueSansMono Nerd Font}
+
+\makeatletter
+
+\patchcmd{\lsthk@SelectCharTable}{%
+  \lst@ifbreaklines\lst@Def{`)}{\lst@breakProcessOther)}\fi
+}{%
+}{
+}{
+}
+
+\makeatother
+
+\newcommand{\CodeSymbol}[1]{\textcolor{cyan!50!black}{#1}}
+\newcommand{\CodeSymbolPurple}[1]{\textcolor{purple}{#1}}
+
+\lstset{
+basicstyle=\footnotesize\ttfamily\bfseries\color{red},
+keywordstyle=\color{green!50!black},
+keywordstyle=[2]\color{red!50!black},
+keywordstyle=[3]\color{purple},
+keywordstyle=[4]\color{red},
+stringstyle=\color{yellow!80!black},
+commentstyle=\itshape\color{gray!50!white},
+identifierstyle=\color{cyan!50!black},
+literate={\{}{{\CodeSymbol{\{}}}1
+               {\}}{{\CodeSymbol{\}}}}1
+               {(}{{\CodeSymbol{(}}}1
+               {)}{{\CodeSymbol{)}}}1
+               {=}{{\CodeSymbol{=}}}1
+               {;}{{\CodeSymbol{;}}}1
+               {.}{{\CodeSymbol{.}}}1
+               {:}{{\CodeSymbol{:}}}1
+               {|}{{\CodeSymbol{|}}}1
+               {,}{{\CodeSymbol{,}}}1
+               {-}{{\CodeSymbol{-}}}1
+               {1}{{\CodeSymbol{1}}}1
+               {2}{{\CodeSymbol{2}}}1
+               {3}{{\CodeSymbol{3}}}1
+               {4}{{\CodeSymbol{4}}}1
+               {5}{{\CodeSymbol{5}}}1
+               {6}{{\CodeSymbol{6}}}1
+               {7}{{\CodeSymbol{7}}}1
+               {8}{{\CodeSymbol{8}}}1
+               {9}{{\CodeSymbol{9}}}1
+               {0}{{\CodeSymbol{0}}}1
+               {->}{{\CodeSymbol{->}}}1
+}
+
+\lstdefinelanguage{SOL}{
+keywords={},
+morestring=[b]{"},
+morestring=[b]{'},
+morecomment=[l]{//},
+morecomment=[s]{/*}{*/},
+morecomment=[s][\color{black}]{<}{>}
+}
+
+\lstdefinelanguage{JavaScript}{
+morekeywords={break,case,catch,continue,debugger,default,delete,do,else,finally,
+  for,function,if,in,instanceof,new,return,switch,this,throw,try,typeof,var,void,while, True, False,
+  node, with, machine, memory,instances, prototype},
+morekeywords=[2]{interface, class,enum,export,extends,import,super,implements,let,package,private,protected,public,static,yield},
+morekeywords=[3]{state, int, bool, undefined, base},
+morekeywords=[4]{True, False}
+morestring=[b]{"},
+morestring=[b]{'},
+morecomment=[l]{//},
+morecomment=[s]{/*}{*/},
+morecomment=[s][\color{black}]{<}{>}
+}
+
+
+\lstset{basicstyle=\footnotesize\ttfamily,breaklines=true}
+\lstset{escapeinside={(*@}{@*)}}
+
+% ---------------------------------
+\lstset{language=Javascript,basicstyle=\footnotesize\ttfamily,breaklines=true}
+
+
+\begin{document}
+\frame{\titlepage}
+
+\begin{frame}
+
+\section{Synchronous Data Flow}
+
+\end{frame}
+
+\begin{frame}[fragile]{DataFlow}
+
+\centering
+
+(1 + x) * y + (1 + x) * 2
+
+\begin{figure}[h]
+\centering
+\begin{BVerbatim}
+1 --->-----+           +---<--- y
+           |           |
+x ---->---[+]---->----[*]---->----[+]---->--
+           |                       |
+           |                       |
+           +----->----[*]---->-----+
+                       |
+         z ------->----+
+\end{BVerbatim}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}[fragile]{Whatever}
+
+Lorem
+
+\begin{table}[!h]
+\begin{minipage}{0.45\linewidth}
+\begin{lstlisting}
+node simple_when(b : bool) -> (y : int) with
+  y = b when True(b)
+\end{lstlisting}
+\end{minipage}
+\hfill\vrule\hfill
+\begin{minipage}{0.45\linewidth}
+\begin{lstlisting}
+node simple_when(b : bool) -> (y : int) with
+  y = b when True(b)
+\end{lstlisting}
+\end{minipage}
+\end{table}
+
+\textbackslash{}end\{frame\}
+
+\textbackslash{}begin\{frame\}
+
+\section{The compiler}
+
+\end{frame}
+
+\begin{frame}[fragile]{Parsing}
+
+Lorem
+
+\end{frame}
+
+\begin{frame}{Normalization}
+
+Lorem
+
+\end{frame}
+
+\begin{frame}{Scheduling}
+
+Lorem
+
+\end{frame}
+
+\begin{frame}{Sol Code Generation}
+
+Lorem
+
+\end{frame}
+
+\begin{frame}{Javascript Code Generation}
+
+Lorem
+
+\section{Engine}
+
+\end{frame}
+
+\begin{frame}{Okay}
+
+Okay ?
+
+\end{frame}
+
+\end{document}

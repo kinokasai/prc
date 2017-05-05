@@ -1,0 +1,39 @@
+\begin{figure}
+\begin{grammar}
+
+<type_dec> ::= \verb|type| $id$ `=' <type_constr>
+
+<type_constr> ::= $constr\_id$
+\alt $constr\_id$(<param>)
+\alt <type_constr> `|' <type_constr>
+
+<param> ::= $id$ `:' $type\_id$
+\alt <param> `,' <param>
+
+<node_dec> ::= [\verb|interface|]\verb|node| $f$($p$) \verb|->| ($p$) \verb|with| <eql>
+
+<eql> ::= <pattern> = <exp> [\verb|::| <clock>]
+\alt <eql> ; <eql>
+
+<pattern> ::= $id$
+\alt (<patttern>, ..., <pattern>)
+
+<exp> ::= <value>
+\alt $id$
+\alt (<exp>, ..., <exp>)
+\alt $x$ = <value> \verb|fby| <exp>
+\alt $op$(<exp>, ..., <exp>)
+\alt \verb|@|$f$(<exp>, ..., <exp>)
+\alt <exp> \verb|when| $C$($id$)
+\verb|merge| $id$ ($C$ \verb|->| <exp>) ... ($C$ \verb|->| <exp>)
+
+<value> ::= $C$ \alt $immediate$
+
+<clock> ::= \verb|base|
+\alt <clock> on $C$($id$)
+
+\end{grammar}
+\hrulefill
+\caption{SAP Grammar}
+\label{SapGrammar}
+\end{figure}

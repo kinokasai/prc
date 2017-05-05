@@ -38,6 +38,8 @@ case (e) {
 \end_code
 
 #### Syntax
+A formal grammar can be found in figure \ref{ADT}
+
 \include sol/adt_grammar.tex
 
 #### Compilation

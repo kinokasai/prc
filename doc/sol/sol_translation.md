@@ -1,8 +1,11 @@
 \lstset{language=Javascript}
 
-##Translation
+# Javascript Code Generation
 
-To present the translation functions, we'll use the following format.
+Once the compiler has the intermediate representation - SOL code, it can compile
+it down to Javascript.
+
+To present the translation functions, we'll use the same format as before.
 On the left side is the SOL program, and its translation is found on the right.
 
 A machine will be translated to a object (function) declaration, with two methods added to
@@ -73,7 +76,6 @@ translate_inst(<id>.reset)
 this.<id>.reset();
 \end_side
 
-\newpage
 A state assignment is translated as an assignment of the
 translated exp to the member variable.
 
@@ -193,48 +195,49 @@ x
 this.x
 \end_side
 
-On the next page is a full example.
-\newpage
+We established a few pages ago that we built a delta list describing the changes
+made during normalization. Indeed, the equation `x = 2 fby add(x, 1)` would
+be transformed into `t1 = 2 fby add(x, 1); x = t1` - thus preventing Javascript
+developers to access inner variable. To remedy that, we use the aforementioned
+delta list to create getters and setters to the appropriate variable on interface
+nodes.
 
 \side
-
-machine condact =
-memory x2: int
-instances x4: count
-reset () =
-    state(x2) = 0
-step (c : bool,i:int) returns (o:int) =
-    var x3 : int in
-    case(c) { Empty: o = x4.step(i) |
-              Full: o = state(x2)};
-    state(x2) = o
+\include ../tests/correct/getter.sap
 \middle_side
-
-function condact() {
-  this.x2 = undefined;
-  this.x4 = new count();
+// We omit non-relevant code.
+function getter() {
+  this.t1 = undefined;
 }
 
-condact.prototype.reset = function() {
-  this.x4.reset();
-  this.x2 = 0;
+getter.prototype.reset = function() {
+  this.t1 = 1;
   return this;
 }
 
-condact.prototype.step = function(c, i) {
-  var x3 = undefined;
-  switch(c) {
-    case inside_enum.Empty:
-      
-      o = this.x4.step(i);
-      break;
-    case inside_enum.Full:
-      
-      o = this.x2;
-      break;
-  };
-  this.x2 = o;
-  return o;
+getter.prototype.step = function(e) {
+  var x = undefined;
+  x = this.t1;
+  this.t1 = 2;
+  return this;
+}
+getter.prototype.get_x = function() {
+  return this.t1;
 }
 
+getter.prototype.set_x = function (new_value) {
+  this.t1 = new_value;
+  return this;
+}
 \end_side
+
+\include sol/adt.md
+
+\newpage
+
+### Javascript Moving Point
+ 
+ Finally, our program is compiled down to Javacript.
+ Since the resulting compiled code is more than a
+ hundred lines long, we can't show it here.
+ Full code can be found in appendix.

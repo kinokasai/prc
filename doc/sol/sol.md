@@ -15,10 +15,6 @@ A program is made of sequence of global machine and type declarations (dec).
 A machine (f) defines a set of memories, a set of instances for objects used inside
 the body of the methods `step` or `reset`, and these two methods.
 
+A description of SOL's grammar can be found in figure \ref{SolGrammar}.
+
 \include sol/grammar.tex
-
-For a better intuition, we'll show how such a language compiles to Javascript.
-
-\include sol/sol_translation.md
-
-\include sol/adt.md

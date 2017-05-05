@@ -1,8 +1,8 @@
 
 \lstset{language=Javascript}
 
-### Translation
-
+## Compilation from Normalized SAP
+<!--
 `map f list` is an helper function that apply the function
 `f` to each element of the list.
 
@@ -71,11 +71,11 @@ get_inst(<id> = <value> fby <exp>)
 
 \side
 \middle_side
-\end_side
+\end_side-->
 
-
-### Compilation
-
+The formal translation function from normalized sap code to SOL won't be
+given here as we try to guide the reader's intuition. One can find
+such a function in \cite{pouzet}
 
 Equation exploration is pretty straightforward as the code has
 been normalized.
@@ -83,13 +83,13 @@ been normalized.
 The compiler starts by exploring the equation list in order
 to find `fby` expressions. When one is found, the left-hand side is
 added as an untyped memory. The value initializer is transformed
-as a assignation instruction in the `reset()` function. Lastly,
+as an assignation instruction in the `reset()` function. Lastly,
 the follow expression is transformed as an assignation instruction
 in the `step()` function.
 
 \side
 node fby_example() -> (x: int) with
-  x = 2 fby x + 1
+  x = 2 fby add(x, 1)
 \middle_side
 machine fby_example
   memory x : undefined
@@ -98,7 +98,7 @@ machine fby_example
     x = 2
   step() returns (x: int) =
     var in
-    x = x + 1
+    x = add(x, 1)
 \end_side
 
 The compiler explores yet again the equation list to find
@@ -120,8 +120,6 @@ machine node_call
     var x : undefined in
     x = plus_node.step(1, 2)
 \end_side
-
-\newpage
 
 Once that's done, the compiler makes the list of all the ids
 which are present on the right hand side of the equations,
@@ -159,7 +157,7 @@ type constructor are translated as is.
 
 \side
 node normal_exps() -> (x: int) with
-  x = 3 + 4;
+  x = add(3, 4);
   y = x;
   z = True
 \middle_side
@@ -173,7 +171,7 @@ step () returns (x: int) =
       y : undefined,
       z : undefined
   in
-  x = 3 + 4;
+  x = add(3, 4);
   y = x;
   z = True
 \end_side
@@ -269,3 +267,51 @@ machine merges =
       Black: x = 3
     }
 \end_side
+
+\newpage
+
+### Simple Moving Point
+
+Once it has been normalized and scheduled, our example is translated
+as imperative code.
+
+\code
+machine point =
+  memory t3 : undefined, t2 : undefined
+  instances t4 : move
+  reset () = 
+    t4.reset();
+  state(t3) = 0;
+  state(t2) = 0
+  step(e : event) returns () = 
+    var x : undefined, y : undefined,
+        t1 : undefined, new_x : undefined,
+        new_y : undefined
+    in 
+    x = state(t2);
+    y = state(t3);
+    t1 = t4.step(e.d, x, y);
+    (new_x, new_y) = t1;
+    state(t2) = new_x;
+    state(t3) = new_y
+
+machine move =
+  memory 
+  instances 
+  reset () = 
+      
+  step(dir : dir, x : int, y : int) returns (x_ : int, y_ : int) = 
+    var x_ : undefined, y_ : undefined in 
+      case (dir) {
+        Left: x_ = sub(x, 20);
+        Right: x_ = add(x, 20);
+        Down: x_ = x;
+        Up: x_ = x
+      };
+      case (dir) {
+        Left: y_ = y;
+        Right: y_ = y;
+        Down: y_ = add(y, 20);
+        Up: y_ = sub(y, 20)
+      }
+\end_code

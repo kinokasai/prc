@@ -1,13 +1,17 @@
 
-## Normalization
+# Normalization
 
 In order to compile down to sequential code, it is imperative
 to extract stateful computations that appear inside expressions.
 
+During the rest of this report, we'll be using a special layout
+to show transformations. Original code will be on the right, and
+transformations will be found on the left.
+
 The normalizer's behavior is quite simple. Its operation are twofold.
 
 Firstly, it separates pattern equations into simple ones.
-One should not make the misatke to expect that a pattern on
+One should not make the mistake to expect that a pattern on
 the right hand side of the equation signifies the presence of
 a pattern equation. Indeed, node calls can have several return
 values.
@@ -99,6 +103,37 @@ node fibonacci() -> (t1 : int) with
   t1 = 1 fby plus(n, 1);
   t2 = 0 fby n
 \end_side
+
+### A normalized small example
+
+Following the evolution of our moving point program, we are
+presented with the following code after normalization.
+
+\code
+type event = Move(d : dir)
+
+type dir = Up | Left | Down | Right
+
+interface node point(e : event) -> () with
+  t3 = 0 fby new_y;
+  t2 = 0 fby new_x;
+  t1 = @move(e.d, x, y);
+  (new_x, new_y) = t1;
+  x = t2 :: base;
+  y = t3 :: base
+
+node move(dir : dir, x : int, y : int) -> (x_ : int, y_ : int) with
+  x_ = merge dir (Left -> sub(x, 20))
+                 (Right -> add(x, 20))
+                 (Down -> x)
+                 (Up -> x);
+  y_ = merge dir (Left -> y)
+                 (Right -> y)
+                 (Down -> add(y, 20))
+                 (Up -> sub(y, 20))
+\end_code
+
+### Formal grammar
 
 After the extraction, terms and equations should be characterized by the 
 grammar described in figure \ref{NsapGrammar}.
