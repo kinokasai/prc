@@ -35,127 +35,102 @@ event_type.Move = function() {
   return {id: event_enum.Move}
 }
 
-event_type.MoveSecond = function(x_, y_) {
-  return {id: event_enum.MoveSecond, x_:x_, y_:y_}
+event_type.MoveSecond = function(x, y) {
+  return {id: event_enum.MoveSecond, x:x, y:y}
 }
 
-event_type.ChangeDir = function(d_) {
-  return {id: event_enum.ChangeDir, d_:d_}
+event_type.ChangeDir = function(d) {
+  return {id: event_enum.ChangeDir, d:d}
 }
 
 function snake_node() {
-  this.y = undefined;
   this.x = undefined;
+  this.y = undefined;
   this.d = undefined;
-  this.cdown = new cdown();
-  this.cup = new cup();
-  this.cright = new cright();
-  this.cleft = new cleft();
+  this.move_left = new left();
+  this.move_right = new right();
+  this.move_down = new down();
+  this.move_up = new up();
+  this.cleft = new change_left();
+  this.cright = new change_right();
+  this.cdown = new change_down();
+  this.cup = new change_up();
 }
 
 snake_node.prototype.reset = function() {
+  this.move_left.reset();
+  this.move_right.reset();
+  this.move_down.reset();
+  this.move_up.reset();
+  this.cleft.reset();
+  this.cright.reset();
   this.cdown.reset();
   this.cup.reset();
-  this.cright.reset();
-  this.cleft.reset();
-  this.cdown.reset();
-  this.cup.reset();
-  this.cright.reset();
-  this.cleft.reset();
-  this.y = 0;
   this.x = 0;
+  this.y = 0;
   this.d = dir_enum.Right;
   return this;
 }
 
 snake_node.prototype.step = function(e) {
-  var t0 = undefined;
-  var t1 = undefined;
-  var t2 = undefined;
-  var t3 = undefined;
-  var t4 = undefined;
-  var t5 = undefined;
-  var t6 = undefined;
-  var t7 = undefined;
+  var x_ = undefined;
+  var y_ = undefined;
+  var d_ = undefined;
+  x_ = this.x;
+  y_ = this.y;
+  d_ = this.d;
   switch(e.id) {
     case event_enum.ChangeDir:
-      var d_ = e.d_;
-      t0 = d_;
-      break;
-  };
-  t1 = this.cleft.step(t0);
-  t2 = this.cright.step(t0);
-  t3 = this.cup.step(t0);
-  t4 = this.cdown.step(t0);
-  t5 = this.d;
-  switch(e.id) {
-    case event_enum.ChangeDir:
-      var d_ = e.d_;
-      switch(t5) {
+      
+      switch(d_) {
         case dir_enum.Left:
           
-          t5 = t1;
+          d_ = this.cleft.step(e.d);
           break;
         case dir_enum.Right:
           
-          t5 = t2;
+          d_ = this.cright.step(e.d);
           break;
         case dir_enum.Up:
           
-          t5 = t3;
+          d_ = this.cup.step(e.d);
           break;
         case dir_enum.Down:
           
-          t5 = t4;
+          d_ = this.cdown.step(e.d);
           break;
       };
       break;
-  };
-  t6 = this.x;
-  switch(e.id) {
     case event_enum.Move:
       
-      switch(t5) {
+      switch(d_) {
         case dir_enum.Left:
           
-          t6 = sub(this.x, node_size);
+          x_ = this.move_left.step(x_);
           break;
         case dir_enum.Right:
           
-          t6 = add(this.x, node_size);
+          x_ = this.move_right.step(x_);
+          break;
+        case dir_enum.Up:
+          
+          y_ = this.move_up.step(y_);
+          break;
+        case dir_enum.Down:
+          
+          y_ = this.move_down.step(y_);
           break;
       };
       break;
     case event_enum.MoveSecond:
-      var x_ = e.x_;
-      var y_ = e.y_;
-      t6 = x_;
-      break;
-  };
-  t7 = this.y;
-  switch(e.id) {
-    case event_enum.Move:
       
-      switch(t5) {
-        case dir_enum.Up:
-          
-          t7 = sub(this.y, node_size);
-          break;
-        case dir_enum.Down:
-          
-          t7 = add(this.y, node_size);
-          break;
-      };
-      break;
-    case event_enum.MoveSecond:
-      var x_ = e.x_;
-      var y_ = e.y_;
-      t7 = y_;
+      x_ = e.x;
+      y_ = e.y;
       break;
   };
-  this.d = t5;
-  this.x = t6;
-  this.y = t7;
+  this.x = x_;
+  this.y = y_;
+  this.d = d_;
   return this;
 }
 snake_node.prototype.move = function () {
@@ -163,25 +138,25 @@ snake_node.prototype.move = function () {
   return this;
 }
 
-snake_node.prototype.moveSecond = function (x_, y_) {
-  this.step(event_type.MoveSecond(x_, y_));
+snake_node.prototype.moveSecond = function (x, y) {
+  this.step(event_type.MoveSecond(x, y));
   return this;
 }
 
-snake_node.prototype.changeDir = function (d_) {
-  this.step(event_type.ChangeDir(d_));
+snake_node.prototype.changeDir = function (d) {
+  this.step(event_type.ChangeDir(d));
   return this;
 }
 
-        function cleft() {
+                function change_left() {
   }
   
-  cleft.prototype.reset = function() {
+  change_left.prototype.reset = function() {
     
     return this;
   }
   
-  cleft.prototype.step = function(d) {
+  change_left.prototype.step = function(d) {
     var next_dir = undefined;
     next_dir = d;
     switch(d) {
@@ -193,15 +168,15 @@ snake_node.prototype.changeDir = function (d_) {
     return next_dir;
   }
   
-        function cright() {
+                function change_right() {
     }
     
-    cright.prototype.reset = function() {
+    change_right.prototype.reset = function() {
       
       return this;
     }
     
-    cright.prototype.step = function(d) {
+    change_right.prototype.step = function(d) {
       var next_dir = undefined;
       next_dir = d;
       switch(d) {
@@ -213,15 +188,15 @@ snake_node.prototype.changeDir = function (d_) {
       return next_dir;
     }
     
-        function cup() {
+                function change_up() {
       }
       
-      cup.prototype.reset = function() {
+      change_up.prototype.reset = function() {
         
         return this;
       }
       
-      cup.prototype.step = function(d) {
+      change_up.prototype.step = function(d) {
         var next_dir = undefined;
         next_dir = d;
         switch(d) {
@@ -233,15 +208,15 @@ snake_node.prototype.changeDir = function (d_) {
         return next_dir;
       }
       
-        function cdown() {
+                function change_down() {
         }
         
-        cdown.prototype.reset = function() {
+        change_down.prototype.reset = function() {
           
           return this;
         }
         
-        cdown.prototype.step = function(d) {
+        change_down.prototype.step = function(d) {
           var next_dir = undefined;
           next_dir = d;
           switch(d) {
@@ -253,3 +228,55 @@ snake_node.prototype.changeDir = function (d_) {
           return next_dir;
         }
         
+                function left() {
+          }
+          
+          left.prototype.reset = function() {
+            
+            return this;
+          }
+          
+          left.prototype.step = function(x) {
+            x = sub(x, node_size);
+            return x;
+          }
+          
+                function right() {
+            }
+            
+            right.prototype.reset = function() {
+              
+              return this;
+            }
+            
+            right.prototype.step = function(x) {
+              x = add(x, node_size);
+              return x;
+            }
+            
+                function up() {
+              }
+              
+              up.prototype.reset = function() {
+                
+                return this;
+              }
+              
+              up.prototype.step = function(y) {
+                y = sub(y, node_size);
+                return y;
+              }
+              
+                function down() {
+                }
+                
+                down.prototype.reset = function() {
+                  
+                  return this;
+                }
+                
+                down.prototype.step = function(y) {
+                  y = add(y, node_size);
+                  return y;
+                }
+                
