@@ -33,13 +33,13 @@ dir_type.Right = function() {
   return {id: dir_enum.Right}
 }
 
-function pointhehe() {
+function point() {
   this.t3 = undefined;
   this.t2 = undefined;
   this.t4 = new move();
 }
 
-pointhehe.prototype.reset = function() {
+point.prototype.reset = function() {
   this.t4.reset();
   this.t4.reset();
   this.t3 = 0;
@@ -47,12 +47,8 @@ pointhehe.prototype.reset = function() {
   return this;
 }
 
-pointhehe.prototype.step = function(e) {
-  var x = undefined;
-  var y = undefined;
-  var t1 = undefined;
-  var new_x = undefined;
-  var new_y = undefined;
+point.prototype.step = function(e) {
+  var e = undefined;
   x = this.t2;
   y = this.t3;
   t1 = this.t4.step(e.d, x, y);
@@ -61,34 +57,34 @@ pointhehe.prototype.step = function(e) {
   this.t3 = new_y;
   return this;
 }
-pointhehe.prototype.get_y = function() {
+point.prototype.get_y = function() {
   return this.t3;
 }
 
-pointhehe.prototype.set_y = function (new_value) {
+point.prototype.set_y = function (new_value) {
   this.t3 = new_value;
   return this;
 }
 
-pointhehe.prototype.get_x = function() {
+point.prototype.get_x = function() {
   return this.t2;
 }
 
-pointhehe.prototype.set_x = function (new_value) {
+point.prototype.set_x = function (new_value) {
   this.t2 = new_value;
   return this;
 }
 
-pointhehe.prototype.get_new_x = function() {
+point.prototype.get_new_x = function() {
   return this.t1;
 }
 
-pointhehe.prototype.set_new_x = function (new_value) {
+point.prototype.set_new_x = function (new_value) {
   this.t1 = new_value;
   return this;
 }
 
-pointhehe.prototype.move = function (d) {
+point.prototype.move = function (d) {
   this.step(event_type.Move(d));
   return this;
 }
@@ -102,8 +98,9 @@ pointhehe.prototype.move = function (d) {
   }
   
   move.prototype.step = function(dir, x, y) {
-    var x_ = undefined;
-    var y_ = undefined;
+    var dir = undefined;
+    var x = undefined;
+    var y = undefined;
     switch(dir) {
       case dir_enum.Left:
         

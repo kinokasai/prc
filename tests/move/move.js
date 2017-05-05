@@ -3,7 +3,7 @@ var ctx = canvas.getContext("2d");
 
 document.addEventListener("keypress", keyPressHandler, false);
 
-point_node = (new pointhehe()).reset();
+point_node = (new point()).reset();
 
 function keyPressHandler(e) {
     /* Do what you must here */

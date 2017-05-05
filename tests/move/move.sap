@@ -1,7 +1,7 @@
 type event = Move(d: dir)
 type dir = Up | Left | Down | Right
 
-interface node pointhehe(e: event) -> () with
+interface node point(e: event) -> () with
   (new_x, new_y) = @move(e.d, x, y);
   x = 0 fby new_x;
   y = 0 fby new_y
