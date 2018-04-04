@@ -58,7 +58,8 @@ and nm_of_eq eq =
 try
 let new_eq = { lhs = eq.lhs;
   rhs = nm_of_exp eq.clk eq.rhs;
-  clk = eq.clk} in
+  clk = eq.clk;
+  kind = Monotype("undefined")} in
 let _ = match !replaced with
   | None -> ()
   | Some id -> delta_list := make_delta (hd (Utils.get_ids_from_lhs eq.lhs)) id ::!delta_list;
@@ -76,7 +77,7 @@ and nm_of_exp clk exp =
     | ExpPattern(expl) -> fily ~print:Print_sap.print_exp expl |> nm_of_exp clk
     | Fby(vl, exp) ->
       let id = new_id() in
-      let eq = {lhs = Id(id); rhs = Fby(vl, exp); clk} in
+      let eq = {lhs = Id(id); rhs = Fby(vl, exp); clk; kind = Monotype("undefined")} in
       let _ = eqfbyl := eq::!eqfbyl in
       let _ = replaced := Some id in
         Variable(id)
@@ -84,7 +85,7 @@ and nm_of_exp clk exp =
     (* You should replace the nodecall *)
     | NodeCall(nid, expl) -> 
       let id = new_id() in(*NodeCall(id, expl |> map (nm_of_exp clk))*)
-      let eq = {lhs= Id(id); rhs = NodeCall(nid, expl |> map (nm_of_exp clk)); clk} in
+      let eq = {lhs= Id(id); rhs = NodeCall(nid, expl |> map (nm_of_exp clk)); clk; kind=Monotype("undefined")} in
       let _ = eqfbyl := eq::!eqfbyl in
       let _ = replaced := Some id in
         Variable(id)

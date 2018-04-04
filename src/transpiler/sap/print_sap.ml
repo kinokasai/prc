@@ -48,6 +48,8 @@ and print_eq eq =
   print_lhs eq.lhs
     ^ " = "
     ^ print_exp eq.rhs
+    ^ " : "
+    ^ print_kind eq.kind
     (*^ " :: "
     ^ print_clk eq.clk*)
 
@@ -80,12 +82,24 @@ and print_exp = function
       print_exp exp
     ^ " when " ^ print_constr constr
 
+  | Plus(lhs, rhs) -> print_exp lhs ^ " + " ^ print_exp rhs
+  | Minus(lhs, rhs) -> print_exp lhs ^ " - " ^ print_exp rhs
+  | Times(lhs, rhs) -> print_exp lhs ^ " * " ^ print_exp rhs
+  | Div(lhs, rhs) -> print_exp lhs ^ " / " ^ print_exp rhs
+
 and print_flow flw =
   "(" ^ flw.constr ^ " -> " ^ print_exp flw.exp ^ ")"
 
 and print_interface = function
   | true -> "interface "
   | false -> ""
+
+and print_kind = function
+  | Monotype(id) -> id
+  | Pluritype(idl) -> 
+    "("
+      ^ (idl |> map print_kind |> concat ", ")
+      ^ ")"
 
 and print_lhs = function
   | Id(id) -> id
@@ -118,7 +132,8 @@ and print_type_dec td =
     |> (^) ("type " ^ td.id ^ " = ")
 
 and print_val = function
-  | Litteral(str) -> str
+  | Int(str)
+  | Float(str) -> str
   | Constr(constr) -> constr.id
 
 and print_vardecs vdl =

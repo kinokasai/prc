@@ -60,6 +60,12 @@ let rec js_of_val = function
 
 let rec js_of_exp = function
   | Op(id, expl) -> id ^ wrap (List.map js_of_exp expl |> concat ", ")
+
+  | Plus(lhs, rhs) -> js_of_exp lhs ^ " + " ^ js_of_exp rhs |> wrap
+  | Minus(lhs, rhs) -> js_of_exp lhs ^ " - " ^ js_of_exp rhs |> wrap
+  | Times(lhs, rhs) -> js_of_exp lhs ^ " * " ^ js_of_exp rhs |> wrap
+  | Div(lhs, rhs) -> js_of_exp lhs ^ " / " ^ js_of_exp rhs |> wrap
+
   | State(id) -> "this." ^ id
   | Step(id, expl) -> "this." ^ remove id ".step" ^
             ".step(" ^ (List.map js_of_exp expl |> concat ", ") ^ ")"

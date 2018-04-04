@@ -63,7 +63,8 @@ let add_to_inst eq =
       inst_list := (make_mach_dec id new_id)::!inst_list;
       {lhs = eq.lhs;
       rhs = NodeCall(new_id, expl);
-      clk = eq.clk}
+      clk = eq.clk;
+      kind = eq.kind}
     | _ -> eq
 
 let explore_inst_list eql =
@@ -158,6 +159,12 @@ and sol_of_exp exp =
   match exp with
     | Op(id, expl) when mem id !nidl -> raise (Failure ("Shouldn't use node call as op:" ^ id))
     | Op(id, expl) -> Sol.Ast.Op(id, List.map sol_of_exp expl)
+
+    | Plus(lhs, rhs) -> Sol.Ast.Plus(sol_of_exp lhs, sol_of_exp rhs)
+    | Minus(lhs, rhs) -> Sol.Ast.Minus(sol_of_exp lhs, sol_of_exp rhs)
+    | Times(lhs, rhs) -> Sol.Ast.Times(sol_of_exp lhs, sol_of_exp rhs)
+    | Div(lhs, rhs) -> Sol.Ast.Div(sol_of_exp lhs, sol_of_exp rhs)
+
     | Value(vl) -> sol_of_val vl
     | Variable(id) when mem_id id !mem_list -> Sol.Ast.State(id)
     | Variable(id) -> Sol.Ast.Variable(id)
@@ -201,5 +208,6 @@ with
   | Too_Many_Parameters(str) -> raise (Too_Many_Parameters ((node.id |> cwrap blue) ^ str |> error))
 
 and sol_of_val = function
-    | Litteral(lit) -> Sol.Ast.Value(Sol.Ast.Litteral(lit))
+    | Int(lit)
+    | Float(lit) -> Sol.Ast.Value(Sol.Ast.Litteral(lit))
     | Constr(constr) -> Sol.Ast.Value(Sol.Ast.Constr(Shared.Types.(constr.id)))

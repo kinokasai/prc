@@ -1,0 +1,2 @@
+node binop() -> (a: int) with
+  a = (1 + 2) * 3

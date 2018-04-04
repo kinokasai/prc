@@ -7,7 +7,8 @@
 %token LPAREN RPAREN
 %token TYPE NODE RETURNS FBY WITH WHEN MERGE INTERFACE ON MATCH END AT
 %token EOF
-%token <string> LITTERAL CONSTR
+%token PLUS MINUS TIMES DIV
+%token <string> LITTERAL CONSTR INT
 %token <string> ID
 
 %start <Sap_ast.ast> init
@@ -29,8 +30,18 @@ eq_list:
   | eql = separated_list(SEMICOLON, eq = eq { eq }) { eql }
 
 eq:
-  | lhs = lhs EQUALS rhs = exp { {lhs; rhs; clk = {on_clk = None; constr_id = None; b_id = None}} }
-  | lhs = lhs EQUALS rhs = exp COLON COLON clk = clock { {lhs; rhs; clk;}}
+  | lhs = lhs EQUALS rhs = exp {
+      {
+        lhs;
+        rhs;
+        clk = {
+          on_clk = None;
+          constr_id = None;
+          b_id = None
+          };
+        kind = Monotype("undefined")
+       } }
+  | lhs = lhs EQUALS rhs = exp COLON COLON clk = clock { {lhs; rhs; clk; kind=Monotype("undefined")}}
 
 exp_list:
   | expl = separated_list(COMMA, exp = exp { exp }) { expl }
@@ -40,7 +51,12 @@ exp:
   | AT id = ID LPAREN expl = exp_list RPAREN{ NodeCall(id, expl)}
   | MERGE id = ID fl = flow_list { Merge(id, fl)}
   | id = ID LPAREN expl = exp_list RPAREN {Op(id, expl)}
+  | LPAREN exp = exp RPAREN { exp }
   | LPAREN expl = separated_list(COMMA, exp) RPAREN { ExpPattern(expl)}
+  | lhs = exp PLUS rhs = exp { Plus(lhs, rhs) }
+  | lhs = exp MINUS rhs = exp { Minus(lhs, rhs) }
+  | lhs = exp TIMES rhs = exp { Times(lhs, rhs) }
+  | lhs = exp DIV rhs = exp { Div(lhs, rhs) }
   | id = ID { Variable(id)}
   | vl = value { Value(vl) }
   | exp = exp WHEN constr = constr { When(exp, constr) }
@@ -82,7 +98,8 @@ ty:
 
 value:
   | constr = constr {Constr(constr)}
-  | lit = LITTERAL { Litteral(lit) }
+  | int = INT { Int(int)}
+  | lit = LITTERAL { Float(lit) }
 
 var_decs:
   | vdl = separated_list(COMMA, var_dec) { vdl }

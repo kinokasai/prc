@@ -1,6 +1,6 @@
 all: runtime
 	(cd src/transpiler; ocamlbuild -use-menhir -use-ocamlfind -pkg batteries -pkg core\
-	 -pkg ocamlgraph -tag thread -tag debug -tag explain -r main.byte)
+	 -pkg ocamlgraph -pkg flow_parser -tag thread -tag debug -tag explain -r main.byte)
 	cp -L src/transpiler/main.byte sdt
 
 runtime:
@@ -25,8 +25,24 @@ clean:
 check: all
 	bash tests/test.sh
 
+doc: report
+
 report:
 	(cd doc;\
 	bash include_md.sh report.md > full_report.md;\
-	pandoc full_report.md -o report.pdf;\
+	./side_code.sh full_report.md;\
+	pandoc -t json out.md | python ./tex_templates/underline.py | \
+	pandoc -f json -o report.pdf --latex-engine=xelatex --toc \
+	--template=tex_templates/template.latex &&\
+	echo "Done.")
+
+slides:
+	(cd doc;\
+	bash include_md.sh slides.md > full_slides.md;\
+	./side_code.sh full_slides.md;\
+	pandoc -t json out.md | python ./tex_templates/filter.py | \
+  pandoc -f json -o slides.pdf -t beamer --latex-engine=xelatex \
+	--template=tex_templates/slide_template.tex --listings)
+# pandoc --filter tex_templates/filter.py -s out.md -t beamer -o slides.pdf --latex-engine=xelatex \
+# --template=tex_templates/slide_template.tex --listings &&\
 	echo "Done.")

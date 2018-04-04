@@ -1,4 +1,6 @@
 open BatString
+open Loc
+
 let empty str =
     String.length str == 0
 

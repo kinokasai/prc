@@ -13,7 +13,8 @@ let make_tmp_eq eq exp =
   let lhs = eq.lhs in
   let rhs = exp in
   let clk = eq.clk in
-  {lhs; rhs; clk}
+  let kind = Monotype("undefined") in
+  {lhs; rhs; clk; kind}
 
 let get_lhsl = function
   | Pattern(lhsl) -> lhsl
@@ -74,7 +75,8 @@ try
     | 1 -> get_lhs eq.lhs
     | _ -> get_lhsl eq.lhs in
   let clk = eq.clk in
-  let f = (fun lhs exp -> {lhs; rhs = exp; clk}) in
+  let kind = Monotype("undefined") in
+  let f = (fun lhs exp -> {lhs; rhs = exp; clk; kind}) in
   map2 f lhsl expl
 with
   | ExpectedPatternExp -> Expected ("Expected Exp Pattern in equation: " ^ (Print_sap.print_eq eq |> quote)) |> raise

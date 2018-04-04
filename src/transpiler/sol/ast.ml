@@ -1,8 +1,5 @@
 open Shared.Types
 
-type opcode =
-  | Plus | Minus
-
 type value =
   | Constr of id
   | Litteral of string
@@ -13,6 +10,11 @@ type exp =
   | State of id
   | Step of id * exp list
   | Variable of id
+
+  | Plus of exp * exp
+  | Minus of exp * exp
+  | Div of exp * exp
+  | Times of exp * exp
 
 type branch = Branch of id * inst list
 

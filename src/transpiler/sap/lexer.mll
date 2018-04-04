@@ -12,6 +12,11 @@ let ident = simple_ident('.'simple_ident)?
 let type_const = ['A'-'Z']['a'-'z' 'A'-'Z']*
 let comment = '#'([^ '\n' ]*)
 
+    (*| "+." { FPLUS }
+    | "-." { FMINUS }
+    | "/." { FDIV }
+    | "*." { FTIMES }*)
+
 rule token = parse
     | white_ { token lexbuf }
     | ';' { SEMICOLON }
@@ -22,9 +27,13 @@ rule token = parse
     | '|' { PIPE }
     | '=' { EQUALS }
     | '@' { AT }
+    | "->" { RETURNS }
+    | '-' { MINUS }
+    | '/' { DIV }
+    | '*' { TIMES }
+    | '+' { PLUS }
     | "type" { TYPE }
     | "node" { NODE }
-    | "->" { RETURNS }
     | "with" { WITH }
     | "when" { WHEN }
     | "merge" { MERGE }
@@ -35,6 +44,7 @@ rule token = parse
     | "on" { ON }
     | comment { token lexbuf }
     | type_const as constr { CONSTR constr }
+    | int as num { INT num }
     | float as num { LITTERAL num}
     | ident as id { ID id }
     | eof { EOF }

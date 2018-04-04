@@ -29,6 +29,10 @@ and expect_exp exp =
     | Op(_, expl) -> expl |> List.fold_left (fun acc exp -> acc && expect_exp exp) true
     | Variable(_) -> true
     | Value(_) -> true
+    | Plus(lhs, rhs) -> expect_exp lhs && expect_exp rhs
+    | Minus(lhs, rhs) -> expect_exp lhs && expect_exp rhs
+    | Times(lhs, rhs) -> expect_exp lhs && expect_exp rhs
+    | Div(lhs, rhs) -> expect_exp lhs && expect_exp rhs
     | _ -> false
     
 and explore_eq eq =

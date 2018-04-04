@@ -11,6 +11,7 @@ sdt
 runtime.js
 
 build/
+flow_parser.0.38.0
 
 # ocamlbuild working directory
 _build/

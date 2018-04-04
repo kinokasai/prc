@@ -17,9 +17,6 @@ let rec insert_lhs map eq = function
   | Pattern(lhsl) -> lhsl |> List.iter (insert_lhs map eq)
 
 let insert_eq map eq =
-  (*match eq.rhs with
-    | Fby(_, _) -> ()
-    | _ -> insert_lhs map eq eq.lhs*)
   insert_lhs map eq eq.lhs
 
 let make_hashmap eql =
@@ -108,9 +105,15 @@ let rec get_deps depl = function
   | Op(_, expl)
   | ExpPattern(expl)
   | NodeCall(_, expl) -> expl |> map (get_deps depl) |> flatten
+
+  | Plus(lhs, rhs)
+  | Minus(lhs, rhs)
+  | Times(lhs, rhs)
+  | Div(lhs, rhs) -> (get_deps depl lhs) @ (get_deps depl rhs)
+
   | Merge(_, flwl) -> flwl |> map (fun flw -> flw.exp) |> map (get_deps depl) |> flatten
   (* The constructor has only one argument *)
-  | When(exp, constr) -> get_deps (hd constr.params::depl) exp
+  | When(exp, constr) -> get_deps (hd Shared.Types.(constr.params)::depl) exp
   | Variable(id) -> id::depl
   | Fby(_, exp) -> get_deps depl exp
   | _ -> depl

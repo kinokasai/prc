@@ -11,6 +11,8 @@ open Sol_of_normal
 open Shared.Colors
 open Core.Std
 open Shared.Exceptions
+open Sap_exn
+open Typer
 
 let lexsub start end_ str lexeme =
     let head = String.sub str 0 start and
@@ -40,6 +42,17 @@ let parse filename =
         exit 2)
     | SyntaxError(str) ->
         print_string str |> exit 3
+
+let type_ast filename ast =
+try
+  let ast = do_type ast in
+  let txt = ast |> Print_sap.print_ast in
+  let name = build filename ".typed" in
+  Out_channel.write_all name ~data:txt;
+  ast
+with
+  | TypeError(_,_,_) as e -> print_string (print_type_err e) |> exit 5
+  | e -> to_string(e) ^ get_backtrace() |> print_endline |> exit 4
 
 let schedule filename ast =
 try
@@ -77,4 +90,4 @@ with
     | e -> to_string(e) ^ get_backtrace() |> print_endline |> exit 4
 
 let compile filename =
-  parse filename |> normal_of_ast filename |> normal_check |> schedule filename |> sol_of_ast filename
+  parse filename |> type_ast filename |> normal_of_ast filename |> normal_check |> schedule filename |> sol_of_ast filename

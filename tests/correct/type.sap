@@ -1,0 +1,3 @@
+node example() -> (v : int) with
+  a = b;
+  b = 3

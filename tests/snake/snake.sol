@@ -1,7 +1,7 @@
 type dir = Up | Left | Down | Right
 type event = Move | MoveSecond(x: int, y:int) | ChangeDir(d : dir)
 
-machine node =
+machine snake_node =
   interface event
   memory x : int, y: int, d : dir
   instances move_left : left, move_right : right, move_down : down, move_up : up,
@@ -17,10 +17,10 @@ machine node =
     d_ = state(d);
     case (e) {
       ChangeDir(d): case(d_) {
-        Left: d_ = cleft.step(d) |
-        Right: d_ = cright.step(d) |
-        Up: d_ = cup.step(d) |
-        Down: d_ = cdown.step(d)
+        Left: d_ = cleft.step(e.d) |
+        Right: d_ = cright.step(e.d) |
+        Up: d_ = cup.step(e.d) |
+        Down: d_ = cdown.step(e.d)
       } |
       Move: case (d_) {
         Left: x_ = move_left.step(x_) |
@@ -28,7 +28,7 @@ machine node =
         Up: y_ = move_up.step(y_) |
         Down: y_ = move_down.step(y_)
         } |
-      MoveSecond(x, y): x_ = x; y_ = y
+      MoveSecond(x, y): x_ = e.x; y_ = e.y
     };
     state(x) = x_;
     state(y) = y_;

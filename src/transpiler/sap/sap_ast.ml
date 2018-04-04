@@ -1,18 +1,24 @@
 open Shared.Types
 
 type value =
-  | Litteral of string
+  | Int of string
+  | Float of string
   | Constr of constr
 
 type exp =
-  | Op of id * exp list
-  | Fby of value * exp
   | ExpPattern of exp list
+  | Fby of value * exp
   | Merge of id * flow list
   | NodeCall of id * exp list
+  | Op of id * exp list
   | Value of value
   | Variable of id
   | When of exp * constr
+
+  | Plus of exp * exp
+  | Minus of exp * exp
+  | Div of exp * exp
+  | Times of exp * exp
 
 and flow =
   { 
@@ -31,11 +37,16 @@ type lhs =
   Id of id
   | Pattern of lhs list
 
+type kind = 
+  | Monotype of id
+  | Pluritype of kind list
+
 type equation =
   { 
     lhs: lhs;
     rhs: exp;
     clk: clock;
+    kind: kind;
   }
 
 type node =

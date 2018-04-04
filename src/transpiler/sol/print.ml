@@ -68,6 +68,12 @@ and string_of_val = function
 
 and string_of_exp = function
   | Op(id, expl) -> id ^ "(" ^ (List.map string_of_exp expl |> concat ", ") ^ ")"
+	
+	| Plus(lhs, rhs) -> string_of_exp lhs ^ " + " ^ string_of_exp rhs
+	| Minus(lhs, rhs) -> string_of_exp lhs ^ " - " ^ string_of_exp rhs
+	| Times(lhs, rhs) -> string_of_exp lhs ^ " * " ^ string_of_exp rhs
+	| Div(lhs, rhs) -> string_of_exp lhs ^ " / " ^ string_of_exp rhs
+
   | State(id) -> "state(" ^ id ^ ")"
   | Step(id, expl) -> id ^ ".step(" ^ (List.map string_of_exp expl |> concat ", ") ^ ")"
   | Variable(id) -> id

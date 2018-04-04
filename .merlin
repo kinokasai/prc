@@ -1,4 +1,4 @@
 S src/transpiler/**
 S src/transpiler/sap/sap_ast.ml
 B src/transpiler/_build/**
-PKG batteries core menhir ocamllex ocamlgraph
+PKG batteries core menhir ocamllex ocamlgraph flow_parser

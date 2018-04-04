@@ -1,4 +1,5 @@
 sap/Compiler
+sap/Sap_exn
 sap/Lexer
 sap/Parser
 sap/Sap_ast
@@ -8,3 +9,4 @@ sap/Utils
 sap/Scheduler
 sap/Sol_of_normal
 sap/Demux
+sap/Typer
